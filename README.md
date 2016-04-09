@@ -1,1 +1,1 @@
-# Sink It Game
+# Sink It
