@@ -4,12 +4,15 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 
 
-public class Ship {
+public class Ship implements MouseListener {
     
     private final int STEP = 50;
     private int cols = 1;
@@ -17,6 +20,10 @@ public class Ship {
     private int shipType = 1;
     private final JPanel ship;
     private Color color;
+    private int x;
+    private int y;
+    private int hitCount;
+    private Color hitColor;
     
     /**
     * Constructs a Ship Class. 
@@ -25,9 +32,13 @@ public class Ship {
     */
     public Ship() {
         this.color = new Color(176, 255, 164);
+        this.hitColor = new Color(255, 32, 32);
         this.cols = 1;   
         this.rows = 1;
+        this.x = 1;
+        this.y = 1;
         this.shipType = 1;
+        this.hitCount = 0;
         ship = new JPanel();
         
     }
@@ -66,6 +77,34 @@ public class Ship {
     */
     public JPanel getShip() {
         return this.ship;
+    }
+    
+    /**
+    * @return returns Ships' position in x axis
+    */
+    public int getX() {
+        return this.x;
+    }
+    
+    /**
+    * @return returns Ships' position in y axis
+    */
+    public int getY() {
+        return this.y;
+    }
+    
+    /**
+    * @param x sets Ship's position in x axis
+    */
+    public void setX(int x) {
+        this.x = x;
+    }
+    
+    /**
+    * @param y sets Ship's position in y axis
+    */
+    public void setY(int y) {
+        this.y = y;
     }
     
     /**
@@ -162,12 +201,51 @@ public class Ship {
         
         JLabel square = new JLabel("");
         square.setOpaque(true);
-        square.setBackground(this.color);
+        
+        /*
+        // CHANGE BACK
+        // square.setBackground(this.color);
+        */
+        
+        square.setBackground(Color.WHITE);
+        square.setBorder(BorderFactory.createLineBorder(new Color(242, 242, 242)));
+        
+        
         Dimension d = new Dimension(this.STEP,this.STEP);
         square.setPreferredSize(d);
         square.setMinimumSize(d);
- 
+        square.addMouseListener(this);
         return square;
     } 
+    
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        // e.getX();
+        // e.getY();
+        JLabel target = (JLabel) e.getSource();
+        Color targetColor = target.getBackground();
+        if(this.hitColor.equals(targetColor)) {
+            System.out.println("already clicked");
+        } else {
+            System.out.println("Ship hit!");
+            this.hitCount +=1;
+            target.setBackground(this.hitColor);
+            if(this.hitCount == this.shipType) {
+                System.out.println("Sinked it!");
+            }
+        }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {}
+
+    @Override
+    public void mouseReleased(MouseEvent e) {}
+
+    @Override
+    public void mouseEntered(MouseEvent e) {}
+
+    @Override
+    public void mouseExited(MouseEvent e) {}
     
 }

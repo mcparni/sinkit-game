@@ -1,5 +1,7 @@
 package com.mcparni.sinkitmaven;
+import java.awt.BorderLayout;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 
 public class Game {
@@ -20,12 +22,24 @@ public class Game {
         JFrame gameFrame = new JFrame("Sink-it");
         gameFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        Board board = new Board();  
-        gameFrame.getContentPane().add(board.getBoard());
+        JPanel stage = new JPanel();
+        gameFrame.getContentPane().add(stage,BorderLayout.LINE_END);
+        
+        JPanel console = new JPanel();
+        console.setSize(374, 550);
+        stage.add(console,BorderLayout.CENTER);
+        
+        JPanel screen = new JPanel();
+        screen.setSize(650, 550);
+        stage.add(screen, BorderLayout.LINE_END);
+        
+        Board board = new Board(); 
+        screen.add(board.getBoard());
+        
         
         // Add initial test Ships
     
-        // Square8
+       /* // Square8
         board.addShip(8, 3, 2);
         // Square6
         board.addShip(6, 6, 1);
@@ -46,7 +60,9 @@ public class Game {
         // Square1
         board.addShip(1, 5, 10);
         // Square1
-        board.addShip(1, 7, 10);
+        board.addShip(1, 7, 10);*/
+        
+        board.addAllShipsAtRandom();
          
         gameFrame.pack();
         gameFrame.setVisible(true);
