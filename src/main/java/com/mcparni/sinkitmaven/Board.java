@@ -1,21 +1,10 @@
 package com.mcparni.sinkitmaven;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
-
-public class Board implements MouseListener {
+public class Board {
     
-    private final JPanel board;
-    private final int SQUARE = 50;
+    private String[][] board;
     private final int ROWS = 11;
     private final int COLUMNS = 13;
     private final int EIGHTS = 1;
@@ -23,62 +12,53 @@ public class Board implements MouseListener {
     private final int FOURS = 2;
     private final int TWOS = 3;
     private final int ONES = 3;
-    private final Color borderGrey;
-    private Color missColor;
-    private Color baseColor;
-    private GridBagConstraints c;
     private ArrayList<Ship> ships;
 
     /**
     * Constructs a Board Class. 
-    * Makes a board for boats. 13 x 12 squares of each 50 x 50 pixels in size.
+    * Makes a board for boats. 13 x 11 units.
     */
     public Board() {
-        System.out.println("Board initialized");
-        this.board = new JPanel();
-        this.board.setBackground(Color.WHITE);
-        this.board.setLayout(new GridBagLayout());
-        c = new GridBagConstraints();
-        c.fill = GridBagConstraints.NONE;
-        c.weightx = 0;
-        ships = new ArrayList();
+        //System.out.println("Board initialized");
         
-        this.baseColor = new Color(255, 255, 255);
-        this.missColor = new Color(200, 200, 200);
-        this.borderGrey = new Color(242, 242, 242);
-              
-        int squareSize = SQUARE;
-        
-        Dimension d = new Dimension();
-        d.width = SQUARE;
-        d.height = SQUARE;
-        
-        for(int i = 1; i < (this.COLUMNS +1); i++) {
-            for(int j = 1; j < (this.ROWS +1); j++) {
-                JLabel square = new JLabel("");
-                square.setOpaque(true);
-                square.setSize(SQUARE, SQUARE);
-                square.setBackground(this.baseColor);
-                square.setMinimumSize(d);
-                square.setPreferredSize(d);
-                square.setBorder(BorderFactory.createLineBorder(this.borderGrey));
-                c.gridx = i;
-                c.gridy = j;
-               
-                this.board.add(square, c);
-                
+        this.board = new String[this.COLUMNS][this.ROWS];
+        this.ships = new ArrayList();
+       
+        for(int i = 0; i < this.COLUMNS; i++) {    
+            for(int j = 0; j < this.ROWS; j++) {
+                this.board[i][j] = "-";
                 
             }
-        }
-        addClickListeners();
+        }  
+       
     }
     
-    private void addClickListeners() {
-        int amountOfSquares = this.board.getComponentCount();
-        for(int i = 0; i < amountOfSquares; i++) {
-            JLabel square = (JLabel) this.board.getComponent(i);
-            square.addMouseListener(this);
+    /**
+    *  Prints current board.
+    */
+    public void printBoard() {
+     for(int i = 0; i < this.ROWS; i++) {  
+            for(int j = 0; j < this.COLUMNS; j++) {
+               System.out.print(this.board[j][i] + "  "); 
+            }
+            System.out.println();
         }
+    }
+    
+     /**
+    * @return String array of this board.
+    */
+    public String[][] getBoard() {
+        return this.board;
+    }
+    
+    private boolean isWithinBounds(int x, int y) {
+        boolean withinBounds = true;
+        if(x > this.ROWS-1 || x < 0 || y > this.COLUMNS-1 || y < 0) {
+            withinBounds = false;
+            
+        }
+        return withinBounds;
     }
     
     /**
@@ -86,87 +66,174 @@ public class Board implements MouseListener {
     * @param type A ship's type: 1,2,4,6 or 8.
     * @param x position in x axis from left to right.
     * @param y position in y axis from top to bottom.
+    * @param character is a string that symbols a ship in array
     */
-    public void addShip(int type, int x, int y) {
+    public void addShip(int type, int x, int y, String character) {
         
-        if(x > this.ROWS || x < 0) {
+        if(!isWithinBounds(x, y)) {
             x = 1;
-        }
-        
-        if(y > COLUMNS || y < 0) {
             y = 1;
         }
         
-        Ship t = new Ship();
-        t.buildShip(type);
-        t.setX(x);
-        t.setY(y);
-                
-        c.gridwidth = t.getColumns();
-        c.gridheight = t.getRows();
-    
-        c.gridx = x;
-        c.gridy = y;
+        Ship ship = new Ship();
+        ship.buildShip(type, character);
+        ship.setX(x);
+        ship.setY(y);
         
-        this.board.add(t.getShip(), c, 0);
+        this.ships.add(ship);
+        updateShipsOnBoard(ship);   
+     
     }
+    
+    
+    
+    private void updateShipsOnBoard(Ship s) {
+        int x = s.getX();
+        int y = s.getY();
+        int columns = s.getColumns();
+        int rows = s.getRows();
+        
+        for(int i = x; i < x + columns; i++) {
+            for(int j = y; j < y + rows; j++) {
+                this.board[i][j] = s.getShip()[i-x][j-y];
+            }
+        } 
+    }
+    
+    
+    /**
+     * Bombs the board at given coordinates and returns
+     * whether it's a hit, miss, hit and sink or if the
+     * area has been already bombed.
+     * @param x coordinate of bomb in x axis
+     * @param y coordinate of bomb in y axis
+     * @return bombresult as an integer.
+     * -1 : is a miss.
+     *  0 : is already bombed
+     *  1 : ship is hit but not sinked.
+     *  2 : ship is hit and sinked.
+     */
+    public int bomb(int x , int y) {
+                
+        int bombResult = -1;
+        
+        if(!isWithinBounds(x, y)) {
+            x = 1;
+            y = 1;
+        }
+        if(this.board[x][y].equals("x") || this.board[x][y].equals("o")) {
+            bombResult = 0;
+        } else {
+            int shipIndex = this.bombHitTestWithShip(x, y);
+            
+            if(shipIndex == -1) {
+                bombResult = -1;
+                this.board[x][y] = "o";
+            } else {                
+                bombResult = hitShip(x, y,shipIndex);
+            }
+        }
+        
+        return bombResult;
+    }
+    
+    /**
+     * Get the amount of ships on board
+     * @return size of ships array list.
+    */
+    public int getShipCount() {
+        return this.ships.size();
+    }
+    
+    /**
+     * Get width of the board
+     * @return integer of how many columns is the width.
+    */
+    public int getColumns() {
+        return this.COLUMNS;
+    }
+    
+    /**
+     * Get height of the board
+     * @return integer of how many rows is the height.
+    */
+    public int getRows() {
+        return this.ROWS;
+    }
+    
+    private int hitShip(int x , int y, int shipIndex) {
+            
+        int bombResult;
+
+        Ship s = this.ships.get(shipIndex);
+        int columns = s.getColumns();
+        int rows = s.getRows();
+        int shipX = s.getX();
+        int shipY = s.getY();
+        int localX = x - shipX;
+        int localY = y - shipY;
+
+        if(s.registerHit(localX, localY)) {
+            this.ships.remove(shipIndex);
+            bombResult = 2;
+        } else {
+            bombResult = 1;
+        }
+        this.board[x][y] = "x";
+        this.updateShipsOnBoard(s);
+
+        return bombResult;
+             
+    }
+
+    
+   /**
+    * Adds all ships to board at random positions.
+    */
     
     public void addAllShipsAtRandom() {
         
-        /*
-        // DEBUG Manual ship
-        
-        Ship te = new Ship();
-        te.buildShip(8);
-        int _x = 4;
-        int _y = 4;
-        te.setX(_x);
-        te.setY(_y);
-        c.gridwidth = te.getColumns();
-        c.gridheight = te.getRows();
+        String[]characters = {"a","b","c","d","e","f","g","h","i","j","k","l"};
+        int cursor = 0;
     
-        c.gridx = _x;
-        c.gridy = _y;
-       
-        ships.add(te);
-        this.board.add(te.getShip(), c, 0);
-        
-        */
-        
         // Square Eight type of SHIP
         for(int i = 0; i < this.EIGHTS; i++) {
             Ship s8 = new Ship();
-            s8.buildShip(8);
+            s8.buildShip(8, characters[cursor]);
             this.placeShip(s8);
+            cursor +=1;
             
         }
         // Square Six type of SHIP
         for(int i = 0; i < this.SIXES; i++) {
             Ship s6 = new Ship();
-            s6.buildShip(6);
+            s6.buildShip(6, characters[cursor]);
             this.placeShip(s6);
+            cursor +=1;
             
         }
         // Square Four type of SHIP
         for(int i = 0; i < this.FOURS; i++) {
             Ship s4 = new Ship();
-            s4.buildShip(4);
+            s4.buildShip(4, characters[cursor]);
             this.placeShip(s4);
-            
+            cursor +=1;
         }
        
         // Square Two type of SHIP
         for(int i = 0; i < this.TWOS; i++) {
             Ship s2 = new Ship();
-            s2.buildShip(2);
+            s2.buildShip(2, characters[cursor]);
             this.placeShip(s2);
+            cursor +=1;
             
         }
          // Square One type of SHIP
         for(int i = 0; i < this.ONES; i++) {
             Ship s1 = new Ship();
-            s1.buildShip(1);
+            s1.buildShip(1, characters[cursor]);
             this.placeShip(s1);
+            cursor +=1;
             
         }
         
@@ -174,26 +241,20 @@ public class Board implements MouseListener {
     }
     
     private void placeShip(Ship s) {
-        int x;
-        int y;
+        int x = 0;
+        int y = 0;
         boolean hits = false;
         
         while(!hits) {
-            x = this.getRandomIntegerBetween(1, this.ROWS);
-            y = this.getRandomIntegerBetween(1, this.COLUMNS);
+            x = this.getRandomIntegerBetween(0, (this.ROWS - 1));
+            y = this.getRandomIntegerBetween(0, (this.COLUMNS - 1));
             s.setX(x);
             s.setY(y);
-            
-            c.gridx = x;
-            c.gridy = y;
-            c.gridwidth = s.getColumns();
-            c.gridheight = s.getRows();
             if(!this.hitTestWithBoard(s) && !this.hitTestWithShip(s)) {
                 hits = true;
             }
         }  
-        ships.add(s);
-        this.board.add(s.getShip(), c, 0);  
+        this.addShip(s.getShipType(), x, y, s.getCharacter());
     }
     
     private int getRandomIntegerBetween(int min, int max) {
@@ -204,11 +265,10 @@ public class Board implements MouseListener {
         int x = ship.getX();
         int y = ship.getY();
         int width = ship.getColumns();
-        int height = ship.getRows();
-        System.out.println("x: " + x + "width: "+ width);
-        
-        if((x + width -1) > this.COLUMNS || (y + height -1) > this.ROWS ) {
-            System.out.println("WALL HIT  x:  " + x + " y: " + y);
+        int height = ship.getRows();  
+      
+        if((x + width -1) > this.COLUMNS -1 || (y + height -1) > this.ROWS -1 ) {
+            // hit to wall
             return true;
         }
         
@@ -217,12 +277,12 @@ public class Board implements MouseListener {
      
     }
     
-    private boolean hitTestWithShip(Ship ship) {
+    private int bombHitTestWithShip(int x, int y) {
         
-        int x = ship.getX();
-        int y = ship.getY();
-        int width = ship.getColumns();
-        int height = ship.getRows();
+
+        int width = 1;
+        int height = 1;
+        int shipIndex = -1;
         
         for(int i = 0; i< ships.size(); i++) {
             Ship test = ships.get(i);
@@ -231,51 +291,33 @@ public class Board implements MouseListener {
                     && (y + height -1) >= test.getY()
                     && y  <  test.getY()  + test.getRows()) {
                 
-                System.out.println("Hit");
-                return true;
+                shipIndex = i;
             }
         }
         
-        return false;
+        return shipIndex;
     }
     
-    /**
-    * @return JPanel of this board.
-    */
-    public JPanel getBoard() {
-        return this.board;
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        // e.getX();
-        // e.getY();
-        JLabel target = (JLabel) e.getSource();
-        Color targetColor = target.getBackground();
-        if(this.missColor.equals(targetColor)) {
-            System.out.println("already clicked");
-        } else {
-            System.out.println("Miss!");
-            target.setBackground(this.missColor);
+    private boolean hitTestWithShip(Ship ship) {
+        
+        int x = ship.getX();
+        int y = ship.getY();
+        int width = ship.getColumns();
+        int height = ship.getRows();
+        boolean hitTest = false;
+        
+        for(int i = 0; i< ships.size(); i++) {
+            Ship test = ships.get(i);
+            if((x + width -1) >= test.getX()
+                    && x < test.getX() + test.getColumns()
+                    && (y + height -1) >= test.getY()
+                    && y  <  test.getY()  + test.getRows()) {
+                
+                hitTest = true;
+            }
         }
-        //System.out.println("Clicked:" + e.getX() + " " + e.getXOnScreen());
-     
+        
+        return hitTest;
     }
-
-    @Override
-    public void mousePressed(MouseEvent e) {}
-
-    @Override
-    public void mouseReleased(MouseEvent e) {}
-
-    @Override
-    public void mouseEntered(MouseEvent e) {}
-
-    @Override
-    public void mouseExited(MouseEvent e) {}
-
-   
-    
-  
-      
+         
 }

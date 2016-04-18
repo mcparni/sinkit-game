@@ -1,12 +1,7 @@
 package com.mcparni.sinkitmaven;
 
-import javax.swing.JPanel;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import java.awt.Color;
 import static org.junit.Assert.*;
 
 
@@ -40,41 +35,78 @@ public class ShipTest {
         
     }
     
-     @Test
-    public void initialColorinConstructor() {
-        Color c = s.getColor();
-        
-        assertEquals(s.getColor(),c);
-        System.out.println("* initialColorinConstructor()");
+    @Test
+    public void initialXinConstructor() {
+        int x = s.getX();
+        assertEquals(x, 1);
+        System.out.println("* initialXinConstructor()");
         
     }
     
     @Test
-    public void testSquareSize() {
-        int size = s.getSquareSize();
-        int expected = 50;
-        assertEquals(size, expected);
-        System.out.println("* testSquareSize()");        
+    public void initialYinConstructor() {
+        int y = s.getY();
+        assertEquals(y, 1);
+        System.out.println("* initialYinConstructor()");
+        
+    }
+    
+    @Test 
+    public void initialShipArrayinConstructor() {
+        String[][] array = s.getShip();
+        int len = array.length;
+        assertEquals(len, 1);
+        System.out.println("* initialShipArrayinConstructor()");
+    }
+    
+    @Test
+    public void initialCharacterinConstructor() {
+        String character = s.getCharacter();
+        assertEquals(character, "-");
+        System.out.println("* initialCharacterinConstructor()");
+        
+    }
+    
+    @Test
+    public void testShipPrint() {
+        s.printShip();
+        int i = 1;
+        assertEquals(i, 1);
+        System.out.println("* testShipPrint()");
+    }
+    
+    @Test
+    public void testHitRegister() {
+        s.setX(0);
+        s.setY(0);
+        boolean sinked = s.registerHit(0, 0);
+        assertEquals(sinked, true);
+        
+        s.setX(6);
+        s.setY(6);
+        sinked = s.registerHit(0, 0);
+        assertEquals(sinked, false);
+        System.out.println("* testHitRegister()");
     }
     
     @Test
     public void testShipClass() {
-        JPanel shipPanel = s.getShip();
-        int shipPanelTest;
-        if(shipPanel instanceof JPanel) {
-            shipPanelTest = 1;
+        Ship ship = new Ship(); 
+        int shipTest;
+        if(ship instanceof Ship) {
+            shipTest = 1;
         } else {
-            shipPanelTest = 0;
+            shipTest = 0;
         }
        
-        assertEquals(shipPanelTest, 1);
+        assertEquals(shipTest, 1);
         System.out.println("* testShipClass()");        
     }
     
     @Test
     public void testInvalidShipType() {
         Ship sh = new Ship();
-        sh.buildShip(12);
+        sh.buildShip(12, "-");
         assertEquals(sh.getShipType(), 1);
         System.out.println("* testInvalidShipType()");
         
@@ -90,7 +122,7 @@ public class ShipTest {
        shipTypes[4] = 8;
        Ship sh = new Ship();
        for(int i = 0; i < shipTypes.length; i++) {
-          sh.buildShip(shipTypes[i]);
+          sh.buildShip(shipTypes[i], "-");
           assertEquals(sh.getShipType(), shipTypes[i]);
        }
        System.out.println("* testAllValidShipTypes()");
