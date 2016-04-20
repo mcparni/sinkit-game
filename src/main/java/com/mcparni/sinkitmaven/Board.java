@@ -2,6 +2,12 @@ package com.mcparni.sinkitmaven;
 
 import java.util.ArrayList;
 
+/**
+ * @author  mcparni
+ * @version 1.0 
+ */
+
+
 public class Board {
     
     private String[][] board;
@@ -24,12 +30,12 @@ public class Board {
         this.board = new String[this.COLUMNS][this.ROWS];
         this.ships = new ArrayList();
        
-        for(int i = 0; i < this.COLUMNS; i++) {    
-            for(int j = 0; j < this.ROWS; j++) {
-                this.board[i][j] = "-";
+        for(int i = 0; i < this.ROWS; i++) {    
+            for(int j = 0; j < this.COLUMNS; j++) {
+                this.board[j][i] = "-";
                 
             }
-        }  
+        }
        
     }
     
@@ -54,7 +60,7 @@ public class Board {
     
     private boolean isWithinBounds(int x, int y) {
         boolean withinBounds = true;
-        if(x > this.ROWS-1 || x < 0 || y > this.COLUMNS-1 || y < 0) {
+        if(x > this.COLUMNS-1 || x < 0 || y > this.ROWS-1 || y < 0) {
             withinBounds = false;
             
         }
@@ -85,17 +91,20 @@ public class Board {
      
     }
     
-    
-    
-    private void updateShipsOnBoard(Ship s) {
-        int x = s.getX();
-        int y = s.getY();
-        int columns = s.getColumns();
-        int rows = s.getRows();
+    /**
+     * Updates the ships in the board array.
+     * @param ship is the specific ship in question of Ship class. 
+     * 
+     */
+    private void updateShipsOnBoard(Ship ship) {
+        int x = ship.getX();
+        int y = ship.getY();
+        int columns = ship.getColumns();
+        int rows = ship.getRows();
         
         for(int i = x; i < x + columns; i++) {
             for(int j = y; j < y + rows; j++) {
-                this.board[i][j] = s.getShip()[i-x][j-y];
+                this.board[i][j] = ship.getShip()[i-x][j-y];
             }
         } 
     }
@@ -108,9 +117,9 @@ public class Board {
      * @param x coordinate of bomb in x axis
      * @param y coordinate of bomb in y axis
      * @return bombresult as an integer.
-     * -1 : is a miss.
-     *  0 : is already bombed
-     *  1 : ship is hit but not sinked.
+     * -1 : is a miss., 
+     *  0 : is already bombed, 
+     *  1 : ship is hit but not sinked., 
      *  2 : ship is hit and sinked.
      */
     public int bomb(int x , int y) {
@@ -122,6 +131,7 @@ public class Board {
             y = 1;
         }
         if(this.board[x][y].equals("x") || this.board[x][y].equals("o")) {
+             
             bombResult = 0;
         } else {
             int shipIndex = this.bombHitTestWithShip(x, y);
@@ -133,7 +143,7 @@ public class Board {
                 bombResult = hitShip(x, y,shipIndex);
             }
         }
-        
+       // System.out.println("bomb: " + bombResult);
         return bombResult;
     }
     
@@ -246,8 +256,8 @@ public class Board {
         boolean hits = false;
         
         while(!hits) {
-            x = this.getRandomIntegerBetween(0, (this.ROWS - 1));
-            y = this.getRandomIntegerBetween(0, (this.COLUMNS - 1));
+            x = this.getRandomIntegerBetween(0, (this.COLUMNS - 1));
+            y = this.getRandomIntegerBetween(0, (this.ROWS - 1));
             s.setX(x);
             s.setY(y);
             if(!this.hitTestWithBoard(s) && !this.hitTestWithShip(s)) {

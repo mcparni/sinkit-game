@@ -40,6 +40,13 @@
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
+            <configuration>
+                <author>true</author>
+                <version>true</version>
+                <defaultAuthor>mcparni</defaultAuthor>
+                <defaultVersion>1.0</defaultVersion>
+                <show>private</show>
+            </configuration>
             <version>2.10.3</version>
         </plugin>
         <plugin>
