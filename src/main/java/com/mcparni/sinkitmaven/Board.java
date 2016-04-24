@@ -51,6 +51,20 @@ public class Board {
         }
     }
     
+    /**
+     * Removes all ships from current board.
+     * 
+     */
+    public void clearBoard() {
+        this.ships.removeAll(this.ships);
+        for(int i = 0; i < this.ROWS; i++) {    
+            for(int j = 0; j < this.COLUMNS; j++) {
+                this.board[j][i] = "-";
+                
+            }
+        }
+    }
+    
      /**
     * @return String array of this board.
     */

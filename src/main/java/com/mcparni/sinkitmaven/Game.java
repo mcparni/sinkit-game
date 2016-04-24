@@ -33,29 +33,40 @@ public class Game implements MouseListener {
         // You can test bombing with this following method:*/
         
         this.currentBoard = new Board();
-        Board board = new Board();
+        Board computerBoard = new Board();
+        Board humanBoard = new Board();
         
+        humanBoard.addAllShipsAtRandom();
         
-        board.addAllShipsAtRandom(); 
-        this.currentBoard = board;
+        computerBoard.addAllShipsAtRandom(); 
+        
+        this.currentBoard = humanBoard;
+        humanBoard.printBoard();
+        System.out.println("ships: " + humanBoard.getShipCount());
+        
         System.out.println("bomb: " + this.currentBoard.getBoard()[11][0]);
         gui = new GUI();
-        gui.drawBoard(board);
+        gui.drawHumanBoard(humanBoard);
+        gui.drawComputerBoard(computerBoard);
         //handleBombResult(board.bomb(11, 0));
         //board.printBoard();
         //bombInput(board);
-        addBoardClickListener();
- 
         
+        addComputerBoardClickListener();
+        
+        randomNewShipsInput();
+  
     }
     
-    private void addBoardClickListener() {
+    private void addComputerBoardClickListener() {
       //gui.getComputerBoard().addMouseListener(this);
       int size = gui.getComputerBoard().getComponentCount();
       for(int i = 0; i < size; i++) {
           gui.getComputerBoard().getComponent(i).addMouseListener(this);
       }
     }
+    
+    
     
     private void bomb(int x, int y, MouseEvent e) {
         Board b = this.currentBoard;
@@ -67,6 +78,31 @@ public class Game implements MouseListener {
         gui.markHitOrMiss(x, y, b, e.getComponent());
     }
     
+    
+    /**
+     * Debug for handling new board randomization.
+     * 
+     */
+    private void randomNewShipsInput() {
+        Scanner sc = new Scanner(System.in);    
+        boolean stop = false;
+        while(!stop) {
+            System.out.println("Are you happy with your ship layout (y/n)?");
+            String s = sc.next();
+            if(s.equals("n")) {
+                /*stop = false;
+                this.currentBoard.clearBoard();
+                this.gui.clearBoard();
+                this.currentBoard.addAllShipsAtRandom();
+                this.currentBoard.printBoard();
+                this.gui.drawHumanBoard(this.currentBoard);*/
+                gui.swapBoardOrder();
+            } else {
+                stop = true;
+            }
+        }
+        System.out.println("Human ready.");
+    }
     
     /**
      *  Call this for bomb debugging.
@@ -123,20 +159,13 @@ public class Game implements MouseListener {
 
      @Override
     public void mouseClicked(MouseEvent e) {
-       /* int x = e.getX();
-        int y = e.getY();
-       
-       
-       
-       
-           */
+       int squareSize = this.gui.getSquareSize();
        int x =  e.getComponent().getBounds().x;
        int y =  e.getComponent().getBounds().y;
-       x /= 50;
-       y /= 50;
+       x /= squareSize;
+       y /= squareSize;
        System.out.println("x: " + x + " y: " + y);
        this.bomb(x, y, e); 
-
     }
 
     @Override

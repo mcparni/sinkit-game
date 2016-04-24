@@ -1,6 +1,7 @@
 package com.mcparni.sinkitmaven;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -43,6 +44,8 @@ public class GUI {
     private final JPanel ACTION_VIEW;
         
     private JPanel computerBoard;
+    private JPanel humanBoard;
+    
     private GridBagLayout gridBagLayout;
     private GridBagConstraints constraints;
     
@@ -75,28 +78,32 @@ public class GUI {
         
         this.SQUARE = 50;
         
-        MAIN_FRAME = new JFrame("Sink-it");
-        MAIN_FRAME.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.MAIN_FRAME = new JFrame("Sink-it");
+        this.MAIN_FRAME.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        STAGE = new JPanel();
-        MAIN_FRAME.getContentPane().add(STAGE,BorderLayout.LINE_END);
+        this.STAGE = new JPanel();
+        this.MAIN_FRAME.getContentPane().add(this.STAGE,BorderLayout.LINE_END);
         
-        CONTROL_VIEW = new JPanel();
-        CONTROL_VIEW.setSize(this.CONTROL_VIEW_SIZE);
-        STAGE.add(CONTROL_VIEW,BorderLayout.CENTER);
+        this.CONTROL_VIEW = new JPanel();
+        this.CONTROL_VIEW.setSize(this.CONTROL_VIEW_SIZE);
+        this.STAGE.add(this.CONTROL_VIEW,BorderLayout.CENTER);
         
-        ACTION_VIEW = new JPanel();
-        ACTION_VIEW.setSize(this.ACTION_VIEW_SIZE);
-        STAGE.add(ACTION_VIEW, BorderLayout.LINE_END);
+        this.ACTION_VIEW = new JPanel(new CardLayout());
+        this.ACTION_VIEW.setSize(this.ACTION_VIEW_SIZE);
+        this.STAGE.add(this.ACTION_VIEW, BorderLayout.LINE_END);
               
-        computerBoard = new JPanel();
+        this.computerBoard = new JPanel();
         this.computerBoard.setLayout(new GridBagLayout());
         
-        constraints = new GridBagConstraints();
+        this.humanBoard = new JPanel();
         
-        MAIN_FRAME.pack();
-        MAIN_FRAME.setVisible(true);
-        MAIN_FRAME.setSize(this.WINDOW_SIZE);
+        
+        this.constraints = new GridBagConstraints();
+        
+        this.MAIN_FRAME.pack();
+        this.MAIN_FRAME.setResizable(false);
+        this.MAIN_FRAME.setVisible(true);
+        this.MAIN_FRAME.setSize(this.WINDOW_SIZE);
     }
     
     public void markHitOrMiss(int x, int y, Board board, Component square) {
@@ -106,52 +113,68 @@ public class GUI {
        square.setBackground(resolveColor(character));
 
     }
+    /**
+     * @return this square size in pixels.
+     * 
+     */
+    public int getSquareSize() {
+        return this.SQUARE;
+    }
     
-    
-    private void clearBoard() {
+    public void clearBoard() {
         System.out.println("Clearing");
             boolean empty = false;
-            while(!empty) {
-                if(this.computerBoard.getComponentCount() > 0) {
-                    this.computerBoard.remove(0);
-                    empty = false;
-                } else {
-                    empty = true;
-                }
-            }
+           // this.humanBoard.removeAll();
+           // this.humanBoard.revalidate();
+           // this.humanBoard.repaint();
+           this.ACTION_VIEW.removeAll();
+           this.ACTION_VIEW.revalidate();
+           this.ACTION_VIEW.repaint();
+           
+            
     }
     
     private Color resolveColor(String character) {
         
-        
-        
-        if(character.equals("o")) {
-            System.out.println("char: " + character);
-            return COLOR_MISS;
-        } else if(character.equals("x")) {
-            return COLOR_HIT;
-        } else {
-            return COLOR_BASE;
+        Color color;
+
+        //String[]characters = {"a","b","c","d","e","f","g","h","i","j","k","l"};
+        switch (character) {
+            case "o":
+                System.out.println("char: " + character);
+                return this.COLOR_MISS;
+            case "x":
+                return this.COLOR_HIT;
+            case "a":
+                return this.COLOR_8;
+            case "b":
+            case "c":
+                return this.COLOR_6;
+            case "d":
+            case "e":
+                return this.COLOR_4;
+            case "f":
+            case "g":
+            case "h":
+                return this.COLOR_2;
+            case "i":
+            case "j":
+            case "k":
+                return this.COLOR_1;
+            default:
+                return COLOR_BASE;
         }
         
     }
-    public void drawBoard(Board board) {
-        
-        
-        
+    public void drawHumanBoard(Board board) {
         Dimension d = new Dimension(this.SQUARE, this.SQUARE);
+        JPanel _humanBoard = new JPanel();
+        _humanBoard.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
         
+        c.fill = GridBagConstraints.NONE;
+        //c.weightx = 0;
         
-        
-        
-       
-        
-       // this.computerBoard.setLocation(this.CONTROL_VIEW_SIZE.width +1 ,0);
-        
-        this.constraints.fill = GridBagConstraints.NONE;
-        this.constraints.weightx = 0;
-        
-        //System.out.println("X: " + this.computerBoard.getX() + " Y " + this.computerBoard.getY());
         
         for(int i = 1; i < (board.getColumns() +1); i++) {
             for(int j = 1; j < (board.getRows() +1); j++) {
@@ -162,6 +185,49 @@ public class GUI {
                 //System.out.println("color: " + resolveColor(character));
                 String character = board.getBoard()[i-1][j-1];
                 square.setBackground(resolveColor(character));
+                square.setMinimumSize(d);
+                square.setPreferredSize(d);
+                square.setBorder(BorderFactory.createLineBorder(this.COLOR_BORDER));
+                c.gridx = i;
+                c.gridy = j;
+               
+                _humanBoard.add(square, c, 0); 
+                
+                
+            }
+        }
+        c.gridx = 1;
+        c.gridy = 1;
+        
+
+        
+        this.ACTION_VIEW.add(_humanBoard, 0);
+        
+        _humanBoard.revalidate();
+        _humanBoard.repaint();
+        this.humanBoard = _humanBoard;
+       
+    }
+    public void drawComputerBoard(Board board) {
+        
+        
+        
+        Dimension d = new Dimension(this.SQUARE, this.SQUARE);
+ 
+        this.constraints.fill = GridBagConstraints.NONE;
+        this.constraints.weightx = 0;
+        
+        
+        for(int i = 1; i < (board.getColumns() +1); i++) {
+            for(int j = 1; j < (board.getRows() +1); j++) {
+                JLabel square = new JLabel("");
+                square.setOpaque(true);
+                square.setSize(d);
+                //square.setBackground(COLOR_BASE);
+                //System.out.println("color: " + resolveColor(character));
+                /*String character = board.getBoard()[i-1][j-1];
+                square.setBackground(resolveColor(character));*/
+                square.setBackground(COLOR_BASE);
                 square.setMinimumSize(d);
                 square.setPreferredSize(d);
                 square.setBorder(BorderFactory.createLineBorder(this.COLOR_BORDER));
@@ -176,7 +242,19 @@ public class GUI {
        
     }
     
-
+    public void swapBoardOrder() {
+        //this.ACTION_VIEW.remove
+        CardLayout cl = (CardLayout)(this.ACTION_VIEW.getLayout());
+        cl.next(this.ACTION_VIEW);
+        System.out.println("c: " + this.ACTION_VIEW.getComponentCount());
+        /*JPanel temp = (JPanel) this.ACTION_VIEW.getComponent(0);
+        JPanel temp2 = (JPanel) this.ACTION_VIEW.getComponent(1);*/
+        
+    }
+    
+    public JPanel humanBoard() {
+        return this.humanBoard;
+    }
     
     public JPanel getComputerBoard() {
         return this.computerBoard;
