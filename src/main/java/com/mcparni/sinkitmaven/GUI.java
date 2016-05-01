@@ -9,9 +9,13 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.LayoutManager;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 /**
  * @author  mcparni
@@ -48,6 +52,9 @@ public class GUI {
     
     private GridBagLayout gridBagLayout;
     private GridBagConstraints constraints;
+
+    private JTextArea statusText;
+    private JButton continueButton;
     
     public GUI() {
         System.out.println("GUI init.");
@@ -85,6 +92,7 @@ public class GUI {
         this.MAIN_FRAME.getContentPane().add(this.STAGE,BorderLayout.LINE_END);
         
         this.CONTROL_VIEW = new JPanel();
+        this.CONTROL_VIEW.setLayout(new BoxLayout(this.CONTROL_VIEW, BoxLayout.Y_AXIS));
         this.CONTROL_VIEW.setSize(this.CONTROL_VIEW_SIZE);
         this.STAGE.add(this.CONTROL_VIEW,BorderLayout.CENTER);
         
@@ -99,12 +107,91 @@ public class GUI {
         
         
         this.constraints = new GridBagConstraints();
+    
+        this.statusText = new JTextArea(5, 20);
+        JScrollPane scrollPane = new JScrollPane(statusText); 
+        this.statusText.setBackground(COLOR_BASE);
+        this.statusText.setOpaque(true);
+        this.statusText.setEditable(false);
+     
+        //this.statusText.setSize(250, 300);
+        
+        
+        this.continueButton = new JButton("Continue");
+        this.continueButton.setName("continueButton");
+        this.CONTROL_VIEW.add(statusText);
+        
+        continueButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.CONTROL_VIEW.add(continueButton);
+       
         
         this.MAIN_FRAME.pack();
         this.MAIN_FRAME.setResizable(false);
         this.MAIN_FRAME.setVisible(true);
         this.MAIN_FRAME.setSize(this.WINDOW_SIZE);
     }
+    
+    public void clearMessages() {
+        this.statusText.setText("");
+    }
+    
+    public void publishMessage(String message) {
+        String currentMessage = this.statusText.getText();
+        
+        this.statusText.setText(currentMessage +"\n"+message);
+    }
+    
+    public void markComputerHit(int x, int y, Board board) {
+                
+                Dimension d = new Dimension(this.SQUARE, this.SQUARE);
+ 
+                this.constraints.fill = GridBagConstraints.NONE;
+                this.constraints.weightx = 0;
+
+                JLabel square = new JLabel("");
+                square.setOpaque(true);
+                square.setSize(d);
+                String character = board.getBoard()[x][y];
+                Color color;
+                if(character.equals("-")) {
+                    color = this.COLOR_MISS;
+                } else {
+                    color = this.COLOR_HIT;
+                }
+                square.setBackground(color);
+                
+                System.out.println("x: " + character);
+                square.setMinimumSize(d);
+                square.setPreferredSize(d);
+                square.setBorder(BorderFactory.createLineBorder(this.COLOR_BORDER));
+                this.constraints.gridx = (x + 1);
+                this.constraints.gridy = (y +1);
+               
+                this.humanBoard.add(square, this.constraints, 0); 
+                
+                this.constraints.gridx = 1;
+                this.constraints.gridy = 1;
+        
+
+        
+                System.out.println("x: " + x + "y: " + y);
+                this.humanBoard.setComponentZOrder(square, 0);
+                this.humanBoard.revalidate();
+                this.humanBoard.repaint();
+      
+    }
+    
+    public void hideContinue() {
+        this.continueButton.setVisible(false);
+    }
+    public void showContinue() {
+        this.continueButton.setVisible(true);
+    }
+    
+    public JButton getContinue() {
+        return this.continueButton;
+    }
+    
     
     public void markHitOrMiss(int x, int y, Board board, Component square) {
 

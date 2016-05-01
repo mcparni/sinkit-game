@@ -16,8 +16,8 @@ public class Board {
     private final int EIGHTS = 1;
     private final int SIXES = 2;
     private final int FOURS = 2;
-    private final int TWOS = 3;
-    private final int ONES = 3;
+    private final int TWOS = 3; 
+   private final int ONES = 3;
     private ArrayList<Ship> ships;
 
     /**
