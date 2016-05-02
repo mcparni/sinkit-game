@@ -77,77 +77,51 @@ public class Game implements MouseListener, ActionListener {
         addContinueListener();
         
         gui.hideContinue();
-         this.pointList = new ArrayList();
+        this.pointList = new ArrayList();
      
        
-            for(int i = 0; i < humanBoard.getColumns(); i++) {
-                for(int j = 0; j < humanBoard.getRows(); j++) {
-                    Point p = new Point(i, j);
-                    this.pointList.add(p);
-                }
+        for(int i = 0; i < humanBoard.getColumns(); i++) {
+            for(int j = 0; j < humanBoard.getRows(); j++) {
+                Point p = new Point(i, j);
+                this.pointList.add(p);
             }
+        }
                
-            /*for(int i = 0; i<pointList.size(); i++) {
-                System.out.println("Point" + i +": " + pointList.get(i));
-            }*/
-         
         
         //randomNewShipsInput();
   
         gui.swapBoardOrder();
         
-        /*int randomPosition = this.getRandomIntegerBetween(0, pointList.size() -1);       
-        this.currentBoard = humanBoard;
-        int x = pointList.get(randomPosition).x;
-        int y = pointList.get(randomPosition).y;*/
-        // selvittele vuoron vaihto vielä
-        //
-        //this.currentBoard.printBoard();
-        
-       /*while(!gameOver) {
-            if(humanBoard.getShipCount() == 0) {
-                gameOver = true;
-                winner = "Computer";
-            } else if (computerBoard.getShipCount() == 0) {
-                gameOver = true;
-                winner = "Human";
-            } else {
-                gameOver = false;
-                if(turn == true) {
-                    int randomPosition = this.getRandomIntegerBetween(0, pointList.size() -1);
-                    gui.swapBoardOrder();        
-                    this.currentBoard = humanBoard;
-                    int x = pointList.get(randomPosition).x;
-                    int y = pointList.get(randomPosition).y;
-                    handleBombResult(this.currentBoard.bomb(x, y));
-                    pointList.remove(randomPosition);
-                
-                } else {
-                    this.currentBoard = computerBoard;
-                    gui.swapBoardOrder();
-                }
-            }
-            
-         
-        }*/
-        
-        System.out.println("Winner: " + winner);
-  
+     
+
         
         
     }
     
+    
+    /**
+     * Adds a click listener for the continue button.
+     */
     private void addContinueListener() {
         gui.getContinue().addActionListener(this);
         
     }
     
+    /**
+     * Game is over and this method presents the winner.
+     * @param winner is either Computer or Human.
+     */
     private void presentWinner(String winner) {
        removeComputerBoardClickListeners();
        gui.clearMessages();
        gui.publishMessage(winner + " is the winner");
     }
     
+    
+    /**
+     * Checks whether the game is over or not.
+     * If not handles the turns between human and computer.
+     */
     private void checkGameOver() {
         
         if(this.humanBoard.getShipCount() == 0) {
@@ -168,8 +142,9 @@ public class Game implements MouseListener, ActionListener {
                 this.currentBoard = this.humanBoard;
                 int x = this.pointList.get(randomPosition).x;
                 int y = this.pointList.get(randomPosition).y;
-                handleBombResult(this.currentBoard.bomb(x, y));
-                gui.markComputerHit(x, y, this.currentBoard);
+                int type = this.currentBoard.bomb(x, y);
+                handleBombResult(type);
+                gui.markComputerHit(x, y, type);
                 this.pointList.remove(randomPosition);
                 System.out.println("human: " + this.pointList.size());
                 this.humanBoard.printBoard();
@@ -187,12 +162,18 @@ public class Game implements MouseListener, ActionListener {
     
     }
     
+    /**
+     * Bombing on boards may continue.
+     */
     private void continueGame() {
         gui.swapBoardOrder();
         gui.hideContinue();
         gui.clearMessages();
     }
     
+    /**
+     * Removes click listeners on computers' board.
+     */
     private void removeComputerBoardClickListeners() {
         int size = gui.getComputerBoard().getComponentCount();
         for(int i = 0; i < size; i++) {
@@ -201,6 +182,9 @@ public class Game implements MouseListener, ActionListener {
 
     }
     
+    /**
+     * Adds click listeners on computers' board.
+     */
     private void addComputerBoardClickListener() {
       int size = gui.getComputerBoard().getComponentCount();
       for(int i = 0; i < size; i++) {
@@ -209,18 +193,26 @@ public class Game implements MouseListener, ActionListener {
     }
     
     
-    
+    /**
+     * Handels bombing the computers' board.
+     * @param x is the x coordinate of the bomb.
+     * @param y is the y coordinate of the bomb.
+     * @param e is the mouse event. Click in this context.
+     */
     private void bomb(int x, int y, MouseEvent e) {
         Board b = this.currentBoard;
         handleBombResult(b.bomb(x, y));
         
-        System.out.println("Boats left: " + b.getShipCount());
-       // b.printBoard();
-       // gui.drawBoard(b);
-        
         gui.markHitOrMiss(x, y, b, e.getComponent());
     }
     
+    
+    /**
+     * Returns a random integer between given integers
+     * @param min is the lowest desired integer.
+     * @param max is the highest desired integer.
+     * @return random integer.
+     */
     private int getRandomIntegerBetween(int min, int max) {
         return min + (int)(Math.random() * ((max - min) + 1));
     }
@@ -278,7 +270,16 @@ public class Game implements MouseListener, ActionListener {
         }
         System.out.println("Bombing stopped.");
     }
-    
+    /**
+     * Method to handle different bombing results 
+     * returned from bombing the board.
+     * 
+     * @param type is type of result:
+     * -1 = miss
+     *  0 = already bombed square
+     *  1 = ship hit
+     *  2 = ship hit and sinked.
+     */
     private void handleBombResult(int type) {
         String message = "";
         String player;
@@ -329,8 +330,12 @@ public class Game implements MouseListener, ActionListener {
     }
     
     
-    
-     @Override
+    /**
+     * Handles the clicking on computers' board.
+     * @param e is the mouse event.
+     * 
+     */
+    @Override
     public void mouseClicked(MouseEvent e) {
        int squareSize = this.gui.getSquareSize();
        int x =  e.getComponent().getBounds().x;
@@ -354,10 +359,7 @@ public class Game implements MouseListener, ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-           this.continueGame();
-
-       
-        
+           this.continueGame();  
     }
     
     

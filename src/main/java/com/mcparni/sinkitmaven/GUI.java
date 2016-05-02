@@ -22,7 +22,11 @@ import javax.swing.JTextArea;
  * @version 1.0 
  */
 
-
+    /**
+     * Constructs a GUI class.
+     * 
+     * This class is responsible for all the visual representation.
+     */
 
 public class GUI {
     
@@ -131,68 +135,98 @@ public class GUI {
         this.MAIN_FRAME.setSize(this.WINDOW_SIZE);
     }
     
+    /**
+     * Clears status text field from messages.
+     */
     public void clearMessages() {
         this.statusText.setText("");
     }
     
+    /**
+     * Publish a message in status text field.
+     * @param message is the message to be published.
+     */
     public void publishMessage(String message) {
         String currentMessage = this.statusText.getText();
         
         this.statusText.setText(currentMessage +"\n"+message);
     }
     
-    public void markComputerHit(int x, int y, Board board) {
+    /**
+     * Presents visual bomb result by computer.
+     * @param x is the x coordinate of bomb.
+     * @param y is the y coordinate of bomb.
+     * @param type is the type of the bombing. 
+     * Expecting -1, 1 or 2.
+     * 
+     */
+    public void markComputerHit(int x, int y, int type) {
                 
-                Dimension d = new Dimension(this.SQUARE, this.SQUARE);
- 
-                this.constraints.fill = GridBagConstraints.NONE;
-                this.constraints.weightx = 0;
+        Dimension d = new Dimension(this.SQUARE, this.SQUARE);
 
-                JLabel square = new JLabel("");
-                square.setOpaque(true);
-                square.setSize(d);
-                String character = board.getBoard()[x][y];
-                Color color;
-                if(character.equals("-")) {
-                    color = this.COLOR_MISS;
-                } else {
-                    color = this.COLOR_HIT;
-                }
-                square.setBackground(color);
-                
-                System.out.println("x: " + character);
-                square.setMinimumSize(d);
-                square.setPreferredSize(d);
-                square.setBorder(BorderFactory.createLineBorder(this.COLOR_BORDER));
-                this.constraints.gridx = (x + 1);
-                this.constraints.gridy = (y +1);
-               
-                this.humanBoard.add(square, this.constraints, 0); 
-                
-                this.constraints.gridx = 1;
-                this.constraints.gridy = 1;
-        
+        this.constraints.fill = GridBagConstraints.NONE;
+        this.constraints.weightx = 0;
 
-        
-                System.out.println("x: " + x + "y: " + y);
-                this.humanBoard.setComponentZOrder(square, 0);
-                this.humanBoard.revalidate();
-                this.humanBoard.repaint();
-      
+        JLabel square = new JLabel("");
+        square.setOpaque(true);
+        square.setSize(d);
+        Color color;
+        if(type == -1) {
+            color = this.COLOR_MISS;
+        } else {
+            color = this.COLOR_HIT;
+        }
+        square.setBackground(color);
+
+        square.setMinimumSize(d);
+        square.setPreferredSize(d);
+        square.setBorder(BorderFactory.createLineBorder(this.COLOR_BORDER));
+        this.constraints.gridx = (x + 1);
+        this.constraints.gridy = (y + 1);
+
+        this.humanBoard.add(square, this.constraints, 0); 
+
+        this.constraints.gridx = 1;
+        this.constraints.gridy = 1;
+
+
+
+        System.out.println("x: " + x + "y: " + y);
+        this.humanBoard.setComponentZOrder(square, 0);
+        this.humanBoard.revalidate();
+        this.humanBoard.repaint();
+
     }
     
+    /**
+     * Hides continue button from the view.
+     */
     public void hideContinue() {
         this.continueButton.setVisible(false);
     }
+    
+    /**
+     * shows the continue button in the view.
+     */
     public void showContinue() {
         this.continueButton.setVisible(true);
     }
     
+    /**
+     * returns the continue button.
+     * @return continue button as a JButton.
+     */
     public JButton getContinue() {
         return this.continueButton;
     }
     
-    
+    /**
+     * Presents visually humans' bomb result.
+     * @param x is the x coordinate of the bomb.
+     * @param y is the y coordinate of the bomb.
+     * @param board is the board of hit.
+     * @param square is the square where bomb hits.
+     */
     public void markHitOrMiss(int x, int y, Board board, Component square) {
 
        String character = board.getBoard()[x][y];
@@ -208,6 +242,9 @@ public class GUI {
         return this.SQUARE;
     }
     
+    /**
+     * clears the ACTION_VIEW of both boards.
+     */
     public void clearBoard() {
         System.out.println("Clearing");
             boolean empty = false;
@@ -221,6 +258,11 @@ public class GUI {
             
     }
     
+    /**
+     * Solves a color to return by given character.
+     * @param character is string character to get the color by.
+     * @return color by character.
+     */
     private Color resolveColor(String character) {
         
         Color color;
@@ -253,6 +295,11 @@ public class GUI {
         }
         
     }
+    
+    /**
+     * Draws a humans' board.
+     * @param board to draw. 
+     */
     public void drawHumanBoard(Board board) {
         Dimension d = new Dimension(this.SQUARE, this.SQUARE);
         JPanel _humanBoard = new JPanel();
@@ -295,6 +342,11 @@ public class GUI {
         this.humanBoard = _humanBoard;
        
     }
+    
+    /**
+     * Draws a computers' board.
+     * @param board to draw.
+     */
     public void drawComputerBoard(Board board) {
         
         
@@ -329,6 +381,10 @@ public class GUI {
        
     }
     
+    /**
+     * Handles the visibility of the boards.
+     * 
+     */
     public void swapBoardOrder() {
         //this.ACTION_VIEW.remove
         CardLayout cl = (CardLayout)(this.ACTION_VIEW.getLayout());
@@ -339,10 +395,18 @@ public class GUI {
         
     }
     
+    /**
+     * Returns a visual presentation of humans' board.
+     * @return humanBoard as a JPanel.
+     */
     public JPanel humanBoard() {
         return this.humanBoard;
     }
     
+    /**
+     * Returns a visual presentation of computers' board.
+     * @return computerBoard as a JPanel.
+     */
     public JPanel getComputerBoard() {
         return this.computerBoard;
     }
