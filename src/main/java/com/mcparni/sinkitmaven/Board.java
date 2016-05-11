@@ -17,7 +17,7 @@ public class Board {
     private final int SIXES = 2;
     private final int FOURS = 2;
     private final int TWOS = 3; 
-   private final int ONES = 3;
+    private final int ONES = 3;
     private ArrayList<Ship> ships;
 
     /**
@@ -168,6 +168,14 @@ public class Board {
     public int getShipCount() {
         return this.ships.size();
     }
+    
+    /**
+     * Get the all the current ships on Board
+     * @return array list of ships.
+    */
+    public ArrayList<Ship> getShips() {
+        return this.ships;
+    } 
     
     /**
      * Get width of the board

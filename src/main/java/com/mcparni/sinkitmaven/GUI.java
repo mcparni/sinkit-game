@@ -10,6 +10,7 @@ import java.awt.GridBagLayout;
 import java.awt.LayoutManager;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -50,7 +51,8 @@ public class GUI {
     private final JPanel STAGE;
     private final JPanel CONTROL_VIEW;
     private final JPanel ACTION_VIEW;
-        
+    
+    
     private JPanel computerBoard;
     private JPanel humanBoard;
     
@@ -59,6 +61,8 @@ public class GUI {
 
     private JTextArea statusText;
     private JButton continueButton;
+    
+    
     
     public GUI() {
         System.out.println("GUI init.");
@@ -230,9 +234,25 @@ public class GUI {
     public void markHitOrMiss(int x, int y, Board board, Component square) {
 
        String character = board.getBoard()[x][y];
-       System.out.println("Char: " + character);
-       square.setBackground(resolveColor(character));
+       System.out.println("bombin Char: " + character);
+       //square.setBackground(resolveColor(character));
+      
+       JLabel s = new JLabel();
+       s = (JLabel) square;
+       ImageIcon icon = null;
+       
+       if(character.equals("o")) {
+           icon = createImageIcon("miss.png");
 
+       } else {
+           icon = createImageIcon("hit.png");
+       }
+       
+       s.setIcon(icon);
+       square =  (JLabel) s;
+       square = (JLabel)square;
+       this.computerBoard.revalidate();
+       this.computerBoard.repaint();
     }
     /**
      * @return this square size in pixels.
@@ -302,6 +322,11 @@ public class GUI {
      */
     public void drawHumanBoard(Board board) {
         Dimension d = new Dimension(this.SQUARE, this.SQUARE);
+        
+        /*JPanel humanBoardBase = new JPanel();
+        humanBoardBase.setLayout(new CardLayout());
+        humanBoardBase.setSize(this.ACTION_VIEW_SIZE);*/
+        
         JPanel _humanBoard = new JPanel();
         _humanBoard.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
@@ -313,9 +338,10 @@ public class GUI {
         for(int i = 1; i < (board.getColumns() +1); i++) {
             for(int j = 1; j < (board.getRows() +1); j++) {
                 JLabel square = new JLabel("");
+                
                 square.setOpaque(true);
                 square.setSize(d);
-                //square.setBackground(COLOR_BASE);
+                square.setBackground(COLOR_BASE);
                 //System.out.println("color: " + resolveColor(character));
                 String character = board.getBoard()[i-1][j-1];
                 square.setBackground(resolveColor(character));
@@ -330,8 +356,40 @@ public class GUI {
                 
             }
         }
+        
         c.gridx = 1;
         c.gridy = 1;
+        
+        /*for(int i = 0; i < board.getShips().size(); i++) {
+            
+             JLabel shipGfx;
+             
+             if(i == 0) {
+                ImageIcon icon = createImageIcon("gfx/square8.png");
+
+                shipGfx  = new JLabel(icon);
+             } else {
+                 shipGfx = new JLabel("");
+             }
+             
+             Dimension shipSize = new Dimension(board.getShips().get(i).getColumns(), board.getShips().get(i).getRows());
+             shipGfx.setOpaque(true);
+             shipGfx.setSize(shipSize);
+             
+             shipGfx.setMinimumSize(shipSize);
+             shipGfx.setPreferredSize(shipSize);
+             
+             shipGfx.setBackground(COLOR_HIT);
+             c.gridx = board.getShips().get(i).getX();
+             c.gridy = board.getShips().get(i).getY();
+             
+             System.out.println("te: " + shipSize + " x: " + c.gridx + " y: " + c.gridy );
+             
+             _humanBoard.add(shipGfx, c);
+        }
+        
+        c.gridx = 1;
+        c.gridy = 1;*/
         
 
         
@@ -340,7 +398,27 @@ public class GUI {
         _humanBoard.revalidate();
         _humanBoard.repaint();
         this.humanBoard = _humanBoard;
+        
+        
        
+    }
+    
+    /**
+     * Creates an ImageIcon object
+     * @param path where the bitmap is supposed to be,
+     * @return new ImageIcon if the image exists at path.
+     * Otherwise null.
+     * 
+     */
+    
+    private ImageIcon createImageIcon(String path) {
+        java.net.URL imgURL = getClass().getClassLoader().getResource(path);
+        if (imgURL != null) {
+            return new ImageIcon(imgURL);
+        } else {
+            System.err.println("Couldn't find file: " + path);
+            return null;
+        }
     }
     
     /**

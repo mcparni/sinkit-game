@@ -1,5 +1,7 @@
 package com.mcparni.sinkitmaven;
 
+import java.io.IOException;
+
 /**
  * @author  mcparni
  * @version 1.0 
@@ -12,7 +14,7 @@ public class Sinkit {
      * The main method. Invokes a new Game Class.
      * 
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         System.out.println("Sink It!");
         

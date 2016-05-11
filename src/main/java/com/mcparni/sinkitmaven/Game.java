@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 import javax.swing.JButton;
@@ -28,6 +29,8 @@ public class Game implements MouseListener, ActionListener {
     int messageCount;
     ArrayList<Point> pointList;
     
+    GameTime gametime;
+    
     /**
     * Constructs a Game Class. 
     * 
@@ -35,7 +38,7 @@ public class Game implements MouseListener, ActionListener {
     * 
     * 
     */
-    public Game() {
+    public Game() throws IOException {
         System.out.println("Game init");
        
         this.turn = false;
@@ -48,12 +51,21 @@ public class Game implements MouseListener, ActionListener {
         board.addAllShipsAtRandom(); 
         board.printBoard();
         
+       
         
         // You can test bombing with this following method:*/
         this.messageCount = 0;
         this.currentBoard = new Board();
         this.computerBoard = new Board();
         this.humanBoard = new Board();
+        
+        /*gametime = new GameTime();
+        gametime.stopTime();
+        System.out.println("seconds: " + gametime.getSeconds());
+        */
+        HighScore highscore = new HighScore();
+        
+        return;
         
         this.humanBoard.addAllShipsAtRandom();
         
@@ -169,6 +181,7 @@ public class Game implements MouseListener, ActionListener {
         gui.swapBoardOrder();
         gui.hideContinue();
         gui.clearMessages();
+        
     }
     
     /**
@@ -281,6 +294,7 @@ public class Game implements MouseListener, ActionListener {
      *  2 = ship hit and sinked.
      */
     private void handleBombResult(int type) {
+        
         String message = "";
         String player;
         if(this.turn) {
