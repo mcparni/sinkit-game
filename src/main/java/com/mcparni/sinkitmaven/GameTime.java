@@ -1,6 +1,5 @@
 package com.mcparni.sinkitmaven;
 
-
 public class GameTime {
     int sec;
     long start;
@@ -8,10 +7,14 @@ public class GameTime {
     long result;
         
     public GameTime() {
-        this.start = System.nanoTime();
-        
-        
+        this.start = 0;
+        this.end = 0;
+
     }
+    public void startTime() {
+        this.start = System.nanoTime();
+    }
+    
     public void stopTime() {
         this.end= System.nanoTime();
         long elapsedTime = this.end - this.start;

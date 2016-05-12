@@ -14,6 +14,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -200,6 +201,16 @@ public class GUI {
         this.humanBoard.revalidate();
         this.humanBoard.repaint();
 
+    }
+    
+    /**
+     * Shows a prompt for player's name for highscore list.
+     * @return name as a String of user input.
+     */
+    public String getPlayerNamePrompt() { 
+        String name = JOptionPane.showInputDialog(this.MAIN_FRAME, "Congratulations! You've made it to top list.\nWhat's your name?");
+        System.out.printf("The user's name is '%s'.\n", name);
+        return name;
     }
     
     /**

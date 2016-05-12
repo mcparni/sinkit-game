@@ -30,6 +30,7 @@ public class Game implements MouseListener, ActionListener {
     ArrayList<Point> pointList;
     
     GameTime gametime;
+    HighScore highscore;
     
     /**
     * Constructs a Game Class. 
@@ -51,6 +52,21 @@ public class Game implements MouseListener, ActionListener {
         board.addAllShipsAtRandom(); 
         board.printBoard();
         
+        /*
+            // controlled reset
+        
+            this.turn = true;
+            this.gameOver = true;
+            this.winner = "-";
+            this.messageCount = 0;
+            this.currentBoard = null;
+            this.computerBoard = null;
+            this.humanBoard = null;
+        
+            this.highscore = null
+            this.gametime.stopTime();
+        
+        */
        
         
         // You can test bombing with this following method:*/
@@ -59,13 +75,15 @@ public class Game implements MouseListener, ActionListener {
         this.computerBoard = new Board();
         this.humanBoard = new Board();
         
-        /*gametime = new GameTime();
-        gametime.stopTime();
-        System.out.println("seconds: " + gametime.getSeconds());
-        */
-        HighScore highscore = new HighScore();
+        this.highscore = new HighScore();
         
-        return;
+        
+        // Start the timer
+        gametime = new GameTime();
+        gametime.startTime();
+        
+        
+
         
         this.humanBoard.addAllShipsAtRandom();
         
@@ -103,10 +121,16 @@ public class Game implements MouseListener, ActionListener {
         //randomNewShipsInput();
   
         gui.swapBoardOrder();
-        
-     
 
         
+    }
+    
+    
+    /**
+     * Removes a click listener for the continue button.
+     */
+    private void removeContinueListener() {
+        gui.getContinue().removeActionListener(this);
         
     }
     
@@ -119,14 +143,38 @@ public class Game implements MouseListener, ActionListener {
         
     }
     
+      
+    /**
+     * Checks if the current score is enough for the top list
+     * @param seconds is the time used in the game in seconds.
+     */
+    private void checkNewHighScore(int seconds) {
+        int index = this.highscore.testHighScore(seconds);
+        if(index > -1) {
+            String name = gui.getPlayerNamePrompt();
+            try{
+                this.highscore.enterNewEntry(seconds, index, name);
+            } catch (Exception e) {
+                System.out.println("exception: " + e);
+            }
+        }
+        
+        // back to the beginning
+    }
+    
     /**
      * Game is over and this method presents the winner.
      * @param winner is either Computer or Human.
      */
     private void presentWinner(String winner) {
+       this.gametime.stopTime();
        removeComputerBoardClickListeners();
        gui.clearMessages();
        gui.publishMessage(winner + " is the winner");
+       if(winner.equals("Human")) {
+           int seconds = this.gametime.getSeconds();
+           checkNewHighScore(seconds);
+       }
     }
     
     
@@ -207,7 +255,7 @@ public class Game implements MouseListener, ActionListener {
     
     
     /**
-     * Handels bombing the computers' board.
+     * Handles bombing the computers' board.
      * @param x is the x coordinate of the bomb.
      * @param y is the y coordinate of the bomb.
      * @param e is the mouse event. Click in this context.

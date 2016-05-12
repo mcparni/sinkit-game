@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 public class HighScore {
     private final String filename;
     private ArrayList<String> namesAndTimes;
+    private ArrayList<String> names;
     private ArrayList<Integer> times;
     private int test;
     private String name;
@@ -21,11 +22,14 @@ public class HighScore {
         this.filename = "highscore.txt";
         this.namesAndTimes = new ArrayList();
         this.times = new ArrayList();
+        this.names = new ArrayList();
         this.test = 290;
         
         readFromFile();
     }
-    private void readFromFile() throws IOException {
+    
+    
+    private void readFromFile() {
         try(BufferedReader br = new BufferedReader(new FileReader(this.filename))) {
             StringBuilder sb = new StringBuilder();
             String line = br.readLine();
@@ -37,57 +41,54 @@ public class HighScore {
                 this.namesAndTimes.add(line);
                 
             }
-            
-            for(int i = 0; i < this.namesAndTimes.size()- 1; i++) {
-                //System.out.println("start" + this.namesAndTimes.get(i));
-                String s = this.namesAndTimes.get(i);
-                int start = s.indexOf(" ");
-                s = s.substring(start + 1, s.length());
-                this.times.add(Integer.parseInt(s));
-                
-        
-               // System.out.println("start" + this.times[i]);
-
-            }
-            String everything = sb.toString();
-            
-            int index = testHighScore(this.test);
-            if(index > -1) {
-                System.out.println(this.times.get(index));
-                this.times.add(index, this.test);
-
-                
-            } 
-            this.times.remove(this.times.size() - 1);
-            
-            //Arrays.sort(this.times);
-            for(int i = 0; i < this.times.size(); i++) {
-                 System.out.println("times: " +this.times.get(i));
-                 
-                 //System.out.println(this.times[0]);
-            }
-            
-            writeToFile();
-
-        } 
+            System.out.println(this.namesAndTimes.get(0) + " : " + this.namesAndTimes.size());
+            updateArrays();
+        } catch(Exception e) { 
+            System.out.println("exception: " + e);
+        }
+    }
+    private void updateArrays() {
+        for(int i = 0; i < this.namesAndTimes.size()- 1; i++) {
+            //System.out.println("start" + this.namesAndTimes.get(i));
+            String time = this.namesAndTimes.get(i);
+            int start = time.indexOf(" ");
+            String name = time.substring(0,start);
+            time = time.substring(start + 1, time.length());
+            this.times.add(Integer.parseInt(time));
+            this.names.add(name);
+        }
     }
     public void setName(String name) {
         this.name = name;
     }
     
-    private void writeToFile() throws IOException{
-        BufferedWriter outputWriter = null;
-        outputWriter = new BufferedWriter(new FileWriter("tscore.txt"));
-        outputWriter.newLine();
-        for (int i = 0; i < this.times.size(); i++) {
-          // Maybe:
-          outputWriter.write(this.times.get(i).toString());
-          outputWriter.newLine();
+    private void writeToFile() {
+        try {
+            BufferedWriter bw = null;
+            bw = new BufferedWriter(new FileWriter(this.filename));
+            bw.newLine();
+            for (int i = 0; i < this.namesAndTimes.size() - 1; i++) {
+              bw.write(this.namesAndTimes.get(i).toString());
+              bw.newLine();
+            }
+            bw.flush();  
+            bw.close();  
+        } catch(Exception e) {
+            System.out.println("error: " + e);
         }
-        outputWriter.flush();  
-        outputWriter.close();  
+    }
+
+    public ArrayList<String> getNamesAndTimes() {
+        return this.namesAndTimes;
     }
     
+    public ArrayList<String> getNames() {
+        return this.names;
+    }
+    
+    public ArrayList<Integer> getTimes() {
+        return this.times;
+    }
     
     public int testHighScore(int score) {
         int index = -1;
@@ -100,6 +101,25 @@ public class HighScore {
             }
         }
         return index;
+    }
+    
+    public void enterNewEntry(int seconds, int index, String name) {
+        this.times.add(index, seconds);
+        this.names.add(index, name);
+        this.namesAndTimes.add(index, name + " " + seconds);
+        this.times.remove((this.times.size() - 1));
+        this.names.remove((this.names.size() - 1));
+        this.namesAndTimes.remove((this.namesAndTimes.size() -1));
+        
+        for (int i = 0; i < this.namesAndTimes.size() - 1; i++) {
+              System.out.println("s: " + this.namesAndTimes.get(i));
+        }
+        
+        try {
+            writeToFile();
+        } catch (Exception e) {
+            System.out.println("exception: " + e);
+        }
     }
 
 
