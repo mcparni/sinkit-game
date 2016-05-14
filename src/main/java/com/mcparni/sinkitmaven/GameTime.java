@@ -11,10 +11,10 @@ package com.mcparni.sinkitmaven;
  * the better the position in the list.
  */
 public class GameTime {
-    int sec;
-    long start;
-    long end;
-    long result;
+    private int sec;
+    private long start;
+    private long end;
+    private long result;
         
     /**
     * Constructor for GameTime class.

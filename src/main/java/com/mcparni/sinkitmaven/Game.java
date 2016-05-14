@@ -17,17 +17,17 @@ import java.util.ArrayList;
  */
 public class Game implements MouseListener, ActionListener {
 
-    int messageCount;
-    boolean turn;
-    boolean gameOver;
-    String winner;
-    ArrayList<Point> pointList;
+    private int messageCount;
+    private boolean turn;
+    private boolean gameOver;
+    private String winner;
+    private ArrayList<Point> pointList;
       
-    GameTime gametime;
-    HighScore highscore;
-    Board humanBoard;
-    Board computerBoard;
-    GUI gui;
+    private GameTime gametime;
+    private HighScore highscore;
+    private Board humanBoard;
+    private Board computerBoard;
+    private GUI gui;
     
     /**
     * Constructs a Game Class. 
