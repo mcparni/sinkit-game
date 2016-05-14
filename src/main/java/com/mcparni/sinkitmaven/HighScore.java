@@ -4,30 +4,40 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
+/**
+ * @author  mcparni
+ * @version 1.0 
+ */
 
+/**
+ * Class for highscores. 
+ * This class reads highscores from file and stores the data in various arrays.
+ * 
+ */
 public class HighScore {
     private final String filename;
     private ArrayList<String> namesAndTimes;
     private ArrayList<String> names;
     private ArrayList<Integer> times;
-    private int test;
-    private String name;
-    
-    public HighScore() throws IOException  {
+
+    /**
+    * Constructor for highscores.
+    * 
+    */
+    public HighScore()  {
         this.filename = "highscore.txt";
         this.namesAndTimes = new ArrayList();
         this.times = new ArrayList();
         this.names = new ArrayList();
-        this.test = 290;
         readFromFile();
     }
     
     
+    /**
+     * Reads the given text file from line to line and stores data in to array list.
+     */
     private void readFromFile() {
         try(BufferedReader br = new BufferedReader(new FileReader(this.filename))) {
             StringBuilder sb = new StringBuilder();
@@ -40,15 +50,17 @@ public class HighScore {
                 this.namesAndTimes.add(line);
                 
             }
-            System.out.println(this.namesAndTimes.get(0) + " : " + this.namesAndTimes.size());
             updateArrays();
         } catch(Exception e) { 
-            System.out.println("exception: " + e);
+            System.out.println("Exception: " + e);
         }
     }
+    /**
+     * Updates data differently to different arrays.
+     * There are data for only names, only times and both.
+     */
     private void updateArrays() {
         for(int i = 0; i < this.namesAndTimes.size()- 1; i++) {
-            //System.out.println("start" + this.namesAndTimes.get(i));
             String time = this.namesAndTimes.get(i);
             int start = time.indexOf(" ");
             String name = time.substring(0,start);
@@ -57,10 +69,10 @@ public class HighScore {
             this.names.add(name);
         }
     }
-    public void setName(String name) {
-        this.name = name;
-    }
-    
+
+    /**
+     * Writes a new entry to text file.
+     */
     private void writeToFile() {
         try {
             BufferedWriter bw = null;
@@ -73,25 +85,58 @@ public class HighScore {
             bw.flush();  
             bw.close();  
         } catch(Exception e) {
-            System.out.println("error: " + e);
+            System.out.println("Exception: " + e);
         }
     }
+    
+    /**
+     * Return highscore times as minutes and seconds.
+     * @return minsAndSecs as a String ArrayList
+     */
+    public ArrayList<String> getMinutesAndSeconds() {
+        ArrayList<String> minsAndSecs = new ArrayList();
+        for(int i = 0; i < this.times.size(); i++) {
+            int minutes = (this.times.get(i) / 60)  % 60;
+            int seconds = this.times.get(i) % 60;
+            String result = minutes + "m " + seconds +"s";
+            minsAndSecs.add(result);
+        }
+        return minsAndSecs;
+    }
 
+    /**
+     * Return highscore names and times (in seconds).
+     * @return namesAndTimes as a  String ArrayList.
+     */
     public ArrayList<String> getNamesAndTimes() {
         return this.namesAndTimes;
     }
     
+    /**
+     * Return highscore names.
+     * @return names as a String Array List.
+     */
     public ArrayList<String> getNames() {
         return this.names;
     }
     
+    /**
+     * Return highscore times (in seconds).
+     * @return times as a Integer Array List.
+     */
     public ArrayList<Integer> getTimes() {
         return this.times;
     }
     
+    /**
+     * Checks if the time is good enough for the highscore list.
+     * @param score is time in seconds.
+     * @return index in the arrays where the score should be placed.
+     * Should the index value be -1, it means that the score offered was
+     * not good enough.
+     */
     public int testHighScore(int score) {
         int index = -1;
-        //System.out.println(this.times[0]);
         for(int i = 0; i < this.times.size(); i++) {
             
             if(score < this.times.get(i)) {
@@ -102,6 +147,12 @@ public class HighScore {
         return index;
     }
     
+    /**
+     * Place new entry to highscore list.
+     * @param seconds is the game time in seconds.
+     * @param index is the place in array.
+     * @param name is the players' name.
+     */
     public void enterNewEntry(int seconds, int index, String name) {
         this.times.add(index, seconds);
         this.names.add(index, name);
@@ -109,10 +160,6 @@ public class HighScore {
         this.times.remove((this.times.size() - 1));
         this.names.remove((this.names.size() - 1));
         this.namesAndTimes.remove((this.namesAndTimes.size() -1));
-        
-        for (int i = 0; i < this.namesAndTimes.size() - 1; i++) {
-              System.out.println("s: " + this.namesAndTimes.get(i));
-        }
         
         try {
             writeToFile();

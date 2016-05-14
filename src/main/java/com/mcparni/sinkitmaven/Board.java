@@ -7,7 +7,9 @@ import java.util.ArrayList;
  * @version 1.0 
  */
 
-
+/**
+ * This is the class for game boards for the ships.
+ */
 public class Board {
     
     private String[][] board;
@@ -25,7 +27,6 @@ public class Board {
     * Makes a board for boats. 13 x 11 units.
     */
     public Board() {
-        //System.out.println("Board initialized");
         
         this.board = new String[this.COLUMNS][this.ROWS];
         this.ships = new ArrayList();
@@ -72,6 +73,12 @@ public class Board {
         return this.board;
     }
     
+    /**
+     * Checks if given coordinates are within board area.
+     * @param x value in x axis to check.
+     * @param y value in y axis to check.
+     * @return withinBounds as boolean.
+     */
     private boolean isWithinBounds(int x, int y) {
         boolean withinBounds = true;
         if(x > this.COLUMNS-1 || x < 0 || y > this.ROWS-1 || y < 0) {
@@ -157,7 +164,6 @@ public class Board {
                 bombResult = hitShip(x, y,shipIndex);
             }
         }
-       // System.out.println("bomb: " + bombResult);
         return bombResult;
     }
     
@@ -193,6 +199,13 @@ public class Board {
         return this.ROWS;
     }
     
+    /**
+     * Check whether the hit bomb has sinked the ship or not.
+     * @param x value in x axis where the bomb has been hit.
+     * @param y value in y axis where the bomb has been hit.
+     * @param shipIndex is the index of the ship in ships array.
+     * @return bombResult as an integer. 
+     */
     private int hitShip(int x , int y, int shipIndex) {
             
         int bombResult;
@@ -221,10 +234,10 @@ public class Board {
     
    /**
     * Adds all ships to board at random positions.
-    */
-    
+    */   
     public void addAllShipsAtRandom() {
         
+        // These are id's for the ships.
         String[]characters = {"a","b","c","d","e","f","g","h","i","j","k","l"};
         int cursor = 0;
     
@@ -272,6 +285,10 @@ public class Board {
     
     }
     
+    /**
+     * Places ship to random position on board.
+     * @param s is the ship to place.
+     */
     private void placeShip(Ship s) {
         int x = 0;
         int y = 0;
@@ -289,10 +306,22 @@ public class Board {
         this.addShip(s.getShipType(), x, y, s.getCharacter());
     }
     
+    
+    /**
+     * Returns a random integer between given integers
+     * @param min is the lowest desired integer.
+     * @param max is the highest desired integer.
+     * @return random integer.
+     */
     private int getRandomIntegerBetween(int min, int max) {
         return min + (int)(Math.random() * ((max - min) + 1));
     }
     
+    /**
+     * Checks if the ship to be placed overlaps(hits) boards borders.
+     * @param ship is the ship to test.
+     * @return boolean of possible hit.
+     */
     private boolean hitTestWithBoard(Ship ship) {
         int x = ship.getX();
         int y = ship.getY();
@@ -309,6 +338,13 @@ public class Board {
      
     }
     
+    /**
+     * Checks if bomb hits with any of the ships
+     * @param x coordinate in x axis of the bomb.
+     * @param y coordinate in y axis of the bomb.
+     * @return shipIndex as index of which ship from the array is in question.
+     * If value is -1, no ship has been hit.
+     */
     private int bombHitTestWithShip(int x, int y) {
         
 
@@ -330,6 +366,12 @@ public class Board {
         return shipIndex;
     }
     
+    /**
+     * Test if given ship overlaps (hits) with any of the already placed ships
+     * on board.
+     * @param ship to test.
+     * @return hitTest as a boolean.
+     */
     private boolean hitTestWithShip(Ship ship) {
         
         int x = ship.getX();

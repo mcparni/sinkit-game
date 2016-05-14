@@ -5,7 +5,9 @@ package com.mcparni.sinkitmaven;
  * @version 1.0 
  */
 
-
+/**
+ * This is the class for the ships to be sinked.
+ */
 public class Ship {
     
     private int cols;
@@ -21,7 +23,6 @@ public class Ship {
     * Constructs a Ship Class. 
     */
     public Ship() {
-        //System.out.println("Ship initialized");
         this.cols = 1;   
         this.rows = 1;
         this.x = 1;

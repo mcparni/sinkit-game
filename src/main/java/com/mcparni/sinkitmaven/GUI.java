@@ -1,16 +1,12 @@
 package com.mcparni.sinkitmaven;
 
 import java.awt.BorderLayout;
-import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
-import static java.awt.Component.TOP_ALIGNMENT;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.LayoutManager;
-import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -28,12 +24,10 @@ import javax.swing.JTextArea;
  * @version 1.0 
  */
 
-    /**
-     * Constructs a GUI class.
-     * 
-     * This class is responsible for all the visual representation.
-     */
-
+/**
+ * This is a View class for the game.
+ * This class is responsible for all the visual representation.
+ */
 public class GUI {
     
     private final Color COLOR_8;
@@ -64,28 +58,25 @@ public class GUI {
     private GridBagLayout gridBagLayout;
     private GridBagConstraints constraints;
 
-    private JTextArea statusText;
+    private final JTextArea statusText;
     
-    private int amountOfButtons;
+    private final int amountOfButtons;
+    private final JButton[] buttons;
+    private final JButton gameButton1;
+    private final JButton gameButton2;
+    private final JButton gameButton3;
     
-    private JButton[] buttons;
-    
-    private JButton gameButton1;
-    private JButton gameButton2;
-    private JButton gameButton3;
-    
-    private JButton approveShips;
-    
-    private Component spaceBetweenBoards;
+    private final Component spaceBetweenBoards;
     
     
     
     
-    
+    /**
+     * Initializes this graphical user interface.
+     */
     public GUI() {
         this.amountOfButtons = 3;
         
-        System.out.println("GUI init.");
         // squareEight red
         this.COLOR_8 = new Color(255, 164, 164);        
         // squareSix pink
@@ -180,6 +171,9 @@ public class GUI {
         
     }
     
+    /**
+     * Removes all boards from the Action View.
+     */
     public void clearViews() {
         this.ACTION_VIEW.removeAll();
         this.ACTION_VIEW.revalidate();
@@ -188,10 +182,10 @@ public class GUI {
         
     }
     
-    public void makeStartView() {
-    
-    }
-    
+    /**
+     * Starts a new game.
+     * Initializes computer's and human's boards.
+     */
     public void startNewGame() {
         this.computerBoard = new JPanel();
         this.computerBoard.setLayout(new GridBagLayout());
@@ -201,16 +195,11 @@ public class GUI {
         
         this.constraints = new GridBagConstraints();
     
-        
-     
-        //this.statusText.setSize(250, 300);
-        
-        
-        
-        
     }
     
-   
+    /**
+     * Sets user's cursor as a crosshair when user hovers above computer's board.
+     */
     public void setCursorCrosshair() {
         this.computerBoard.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
     }
@@ -284,8 +273,6 @@ public class GUI {
         this.constraints.gridy = 1;
 
 
-
-        System.out.println("x: " + x + "y: " + y);
         this.humanBoard.setComponentZOrder(square, 0);
         this.humanBoard.revalidate();
         this.humanBoard.repaint();
@@ -298,7 +285,6 @@ public class GUI {
      */
     public String getPlayerNamePrompt() { 
         String name = JOptionPane.showInputDialog(this.MAIN_FRAME, "Congratulations! You've made it to top list.\nWhat's your name?");
-        System.out.printf("The user's name is '%s'.\n", name);
         return name;
     }
 
@@ -311,9 +297,7 @@ public class GUI {
        return this.buttons;
      
     }
-    
 
-    
     /**
      * Presents visually humans' bomb result.
      * @param x is the x coordinate of the bomb.
@@ -324,8 +308,6 @@ public class GUI {
     public void markHitOrMiss(int x, int y, Board board, Component square) {
 
        String character = board.getBoard()[x][y];
-       System.out.println("bombin Char: " + character);
-       //square.setBackground(resolveColor(character));
       
        JLabel s = new JLabel();
        s = (JLabel) square;
@@ -356,11 +338,10 @@ public class GUI {
      * clears the human board.
      */
     public void clearBoard() {
-        System.out.println("Clearing");
-            this.humanBoard.removeAll();
-            this.humanBoard.revalidate();
-            this.humanBoard.repaint();
-            this.ACTION_VIEW.remove(this.spaceBetweenBoards);   
+        this.humanBoard.removeAll();
+        this.humanBoard.revalidate();
+        this.humanBoard.repaint();
+        this.ACTION_VIEW.remove(this.spaceBetweenBoards);   
     }
     
     /**
@@ -374,7 +355,6 @@ public class GUI {
         //String[]characters = {"a","b","c","d","e","f","g","h","i","j","k","l"};
         switch (character) {
             case "o":
-                System.out.println("char: " + character);
                 return this.COLOR_MISS;
             case "x":
                 return this.COLOR_HIT;
@@ -416,7 +396,6 @@ public class GUI {
                 square.setOpaque(true);
                 square.setSize(d);
                 square.setBackground(COLOR_BASE);
-                //System.out.println("color: " + resolveColor(character));
                 String character = board.getBoard()[i-1][j-1];
                 square.setBackground(resolveColor(character));
                 square.setMinimumSize(d);
@@ -451,7 +430,6 @@ public class GUI {
      * Otherwise null.
      * 
      */
-    
     private ImageIcon createImageIcon(String path) {
         java.net.URL imgURL = getClass().getClassLoader().getResource(path);
         if (imgURL != null) {
@@ -481,10 +459,6 @@ public class GUI {
                 JLabel square = new JLabel("");
                 square.setOpaque(true);
                 square.setSize(d);
-                //square.setBackground(COLOR_BASE);
-                //System.out.println("color: " + resolveColor(character));
-                /*String character = board.getBoard()[i-1][j-1];
-                square.setBackground(resolveColor(character));*/
                 square.setBackground(COLOR_BASE);
                 square.setMinimumSize(d);
                 square.setPreferredSize(d);
