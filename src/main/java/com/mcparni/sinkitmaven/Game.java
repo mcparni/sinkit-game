@@ -8,7 +8,7 @@ import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
-import javax.swing.JButton;
+
 
 /**
  * @author  mcparni
@@ -35,78 +35,69 @@ public class Game implements MouseListener, ActionListener {
     /**
     * Constructs a Game Class. 
     * 
-    * Initializes one board of ships with random locations.
+    * Initializes the controller class.
     * 
     * 
     */
-    public Game() throws IOException {
+    public Game() {
         System.out.println("Game init");
-       
+        this.gui = new GUI();
+        addButtonListeners();
+        displayHighScores();
+        //startNewGame();
+    }
+    
+    private void displayHighScores() {
+        try {
+            this.highscore = new HighScore();
+        } catch (Exception e) {
+            System.out.println("Exception: " + e);
+        }
+        String scoresText = "SinkIt!\n\nHIGHSCORES\n\n";
+        int entries = this.highscore.getNamesAndTimes().size();
+        for(int i = 0; i < entries -1; i ++) {
+            scoresText += this.highscore.getNames().get(i) + "\t\t" +this.highscore.getTimes().get(i) + "\n";
+        }
+        this.gui.publishMessage(scoresText);
+        
+    }
+    
+    private void addButtonListeners() {
+        for(int i = 0; i < gui.getButtons().length; i ++) {
+            gui.getButtons()[i].addActionListener(this);
+        }        
+    }
+    
+    private void startNewGame() {
         this.turn = false;
-       
-
         this.gameOver = false;
         this.winner = "-";
-        
-        /*Board board = new Board();
-        board.addAllShipsAtRandom(); 
-        board.printBoard();
-        
-        /*
-            // controlled reset
-        
-            this.turn = true;
-            this.gameOver = true;
-            this.winner = "-";
-            this.messageCount = 0;
-            this.currentBoard = null;
-            this.computerBoard = null;
-            this.humanBoard = null;
-        
-            this.highscore = null
-            this.gametime.stopTime();
-        
-        */
-       
-        
-        // You can test bombing with this following method:*/
         this.messageCount = 0;
+        
         this.currentBoard = new Board();
         this.computerBoard = new Board();
         this.humanBoard = new Board();
-        
-        this.highscore = new HighScore();
-        
-        
-        // Start the timer
-        gametime = new GameTime();
-        gametime.startTime();
-        
-        
+       
+       
 
+        this.gametime = new GameTime();
+        this.gametime.startTime();
         
         this.humanBoard.addAllShipsAtRandom();
-        
         this.computerBoard.addAllShipsAtRandom(); 
-        //this.computerBoard.addShip(4, 1, 1,"d");
         
         this.currentBoard = this.computerBoard;
-        this.humanBoard.printBoard();
-        System.out.println("ships: " + this.humanBoard.getShipCount());
-        
-        System.out.println("bomb: " + this.currentBoard.getBoard()[11][0]);
-        gui = new GUI();
+        gui.clearMessages();
+        gui.startNewGame();
         gui.drawHumanBoard(this.humanBoard);
         gui.drawComputerBoard(this.computerBoard);
         
-        //handleBombResult(board.bomb(11, 0));
-        //board.printBoard();
-        //bombInput(board);
         
         addComputerBoardClickListener();
         addContinueListener();
         
         gui.hideContinue();
+        
         this.pointList = new ArrayList();
      
        
@@ -116,15 +107,27 @@ public class Game implements MouseListener, ActionListener {
                 this.pointList.add(p);
             }
         }
-               
         
-        //randomNewShipsInput();
-  
-        gui.swapBoardOrder();
+        
+        
 
-        
-    }
+    }   
     
+    private void endGame() {
+        this.turn = true;
+        this.gameOver = true;
+        this.winner = "-";
+        this.messageCount = 0;
+        this.currentBoard = null;
+        this.computerBoard = null;
+        this.humanBoard = null;
+        this.highscore = null;
+        this.gametime.stopTime();
+        this.pointList.clear();
+        removeComputerBoardClickListeners();
+        addContinueListener();
+    
+    }
     
     /**
      * Removes a click listener for the continue button.
@@ -220,6 +223,14 @@ public class Game implements MouseListener, ActionListener {
             }
         }
     
+    }
+    
+    private void makeNewShipLayout() {
+        this.currentBoard.clearBoard();
+        this.gui.clearBoard();
+        this.currentBoard.addAllShipsAtRandom();
+        this.currentBoard.printBoard();
+        this.gui.drawHumanBoard(this.currentBoard);
     }
     
     /**
@@ -421,7 +432,38 @@ public class Game implements MouseListener, ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-           this.continueGame();  
+       switch(e.getActionCommand()) {
+            case "New Game":
+               System.out.println("new");
+               startNewGame();
+               this.gui.phaseShipSelect();
+               break;
+            case "Instructions":
+               System.out.println("inst");
+               break;
+            case "Close Program":
+               System.exit(0);
+               break;
+            case "Continue":
+               continueGame();
+               break;
+            case "No":
+               makeNewShipLayout();
+               break;
+            case "Yes":
+                System.out.println("yes");
+                // start game etc, clear texts
+               this.gui.swapBoardOrder();
+               break;
+            case "Quit Game":
+               System.out.println("quit");
+               endGame();
+               this.displayHighScores();
+               this.gui.phaseInitial();
+               break;
+        }
+        
+       
     }
     
     

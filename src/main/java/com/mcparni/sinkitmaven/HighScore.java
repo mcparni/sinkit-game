@@ -24,7 +24,6 @@ public class HighScore {
         this.times = new ArrayList();
         this.names = new ArrayList();
         this.test = 290;
-        
         readFromFile();
     }
     

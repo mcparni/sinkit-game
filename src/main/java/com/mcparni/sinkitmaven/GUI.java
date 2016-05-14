@@ -8,6 +8,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.LayoutManager;
+import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -63,9 +64,23 @@ public class GUI {
     private JTextArea statusText;
     private JButton continueButton;
     
+    private int amountOfButtons;
+    
+    private JButton[] buttons;
+    
+    private JButton gameButton1;
+    private JButton gameButton2;
+    private JButton gameButton3;
+    
+    private JButton approveShips;
+    
+    
+    
     
     
     public GUI() {
+        this.amountOfButtons = 3;
+        
         System.out.println("GUI init.");
         // squareEight red
         this.COLOR_8 = new Color(255, 164, 164);        
@@ -90,6 +105,7 @@ public class GUI {
         
         this.ACTION_VIEW_SIZE = new Dimension(650, 550);
         
+        
         this.CONTROL_VIEW_SIZE = new Dimension(374,550);
         
         this.SQUARE = 50;
@@ -107,8 +123,63 @@ public class GUI {
         
         this.ACTION_VIEW = new JPanel(new CardLayout());
         this.ACTION_VIEW.setSize(this.ACTION_VIEW_SIZE);
+        this.ACTION_VIEW.setPreferredSize(this.ACTION_VIEW_SIZE);
+        //this.ACTION_VIEW.setBackground(new Color(198, 241, 255));
         this.STAGE.add(this.ACTION_VIEW, BorderLayout.LINE_END);
               
+        this.statusText = new JTextArea(5, 20);
+        this.statusText.setPreferredSize(new Dimension(360,400));
+        
+        JScrollPane scrollPane = new JScrollPane(statusText); 
+        this.statusText.setBackground(COLOR_BASE);
+        this.statusText.setOpaque(true);
+        this.statusText.setEditable(false);
+        this.CONTROL_VIEW.add(statusText);
+        
+        this.buttons = new JButton[this.amountOfButtons];
+        
+        this.gameButton1 = new JButton();
+        this.gameButton1.setName("gameButton1");
+        
+        gameButton1.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.CONTROL_VIEW.add(gameButton1);
+        
+        this.gameButton2 = new JButton();
+        this.gameButton2.setName("gameButton2");
+        
+        gameButton2.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.CONTROL_VIEW.add(gameButton2);
+        
+        this.gameButton3 = new JButton();
+        this.gameButton3.setName("gameButton3");
+        
+        this.buttons[0] = this.gameButton1;
+        this.buttons[1] = this.gameButton2;
+        this.buttons[2] = this.gameButton3;
+        
+        phaseInitial();
+        
+        
+        gameButton3.setAlignmentX(Component.CENTER_ALIGNMENT);
+        this.CONTROL_VIEW.add(gameButton3);
+        
+        this.MAIN_FRAME.pack();
+        this.MAIN_FRAME.setResizable(false);
+        this.MAIN_FRAME.setVisible(true);
+        this.MAIN_FRAME.setSize(this.WINDOW_SIZE);
+        
+        
+    }
+    
+    public void clearViews() {
+    
+    }
+    
+    public void makeStartView() {
+    
+    }
+    
+    public void startNewGame() {
         this.computerBoard = new JPanel();
         this.computerBoard.setLayout(new GridBagLayout());
         
@@ -117,27 +188,42 @@ public class GUI {
         
         this.constraints = new GridBagConstraints();
     
-        this.statusText = new JTextArea(5, 20);
-        JScrollPane scrollPane = new JScrollPane(statusText); 
-        this.statusText.setBackground(COLOR_BASE);
-        this.statusText.setOpaque(true);
-        this.statusText.setEditable(false);
+        
      
         //this.statusText.setSize(250, 300);
         
         
         this.continueButton = new JButton("Continue");
         this.continueButton.setName("continueButton");
-        this.CONTROL_VIEW.add(statusText);
+        
         
         continueButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         this.CONTROL_VIEW.add(continueButton);
-       
         
-        this.MAIN_FRAME.pack();
-        this.MAIN_FRAME.setResizable(false);
-        this.MAIN_FRAME.setVisible(true);
-        this.MAIN_FRAME.setSize(this.WINDOW_SIZE);
+        
+    }
+    
+    public void phaseInitial() {
+        buttons[0].setText("New Game");
+        buttons[1].setText("Instructions");
+        buttons[2].setText("Close Program");
+        this.ACTION_VIEW.setVisible(false);
+    }
+    
+    public void phaseShipSelect() {
+        this.clearMessages();
+        this.publishMessage("Are you happy with the current ship layout?");
+        buttons[0].setText("Yes");
+        buttons[1].setText("No");
+        buttons[2].setText("Quit Game");
+        this.ACTION_VIEW.setVisible(true);
+    }
+    
+    /**
+     * @return this main frame as a JFrame
+     */
+    public JFrame getFrame() {
+        return this.MAIN_FRAME;
     }
     
     /**
@@ -225,6 +311,14 @@ public class GUI {
      */
     public void showContinue() {
         this.continueButton.setVisible(true);
+    }
+    
+    /**
+     * @return game UI buttons as an array.
+     */
+    public JButton[] getButtons() {
+       return this.buttons;
+     
     }
     
     /**
