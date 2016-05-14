@@ -1,11 +1,9 @@
 package com.mcparni.sinkitmaven;
-import java.awt.List;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -29,6 +27,7 @@ public class Game implements MouseListener, ActionListener {
     int messageCount;
     ArrayList<Point> pointList;
     
+    
     GameTime gametime;
     HighScore highscore;
     
@@ -44,6 +43,7 @@ public class Game implements MouseListener, ActionListener {
         this.gui = new GUI();
         addButtonListeners();
         displayHighScores();
+        phaseInitial();
         //startNewGame();
     }
     
@@ -73,12 +73,9 @@ public class Game implements MouseListener, ActionListener {
         this.gameOver = false;
         this.winner = "-";
         this.messageCount = 0;
-        
-        this.currentBoard = new Board();
+                
         this.computerBoard = new Board();
         this.humanBoard = new Board();
-       
-       
 
         this.gametime = new GameTime();
         this.gametime.startTime();
@@ -86,17 +83,10 @@ public class Game implements MouseListener, ActionListener {
         this.humanBoard.addAllShipsAtRandom();
         this.computerBoard.addAllShipsAtRandom(); 
         
-        this.currentBoard = this.computerBoard;
         gui.clearMessages();
         gui.startNewGame();
-        gui.drawHumanBoard(this.humanBoard);
         gui.drawComputerBoard(this.computerBoard);
-        
-        
-        addComputerBoardClickListener();
-        addContinueListener();
-        
-        gui.hideContinue();
+        gui.drawHumanBoard(this.humanBoard);
         
         this.pointList = new ArrayList();
      
@@ -107,9 +97,8 @@ public class Game implements MouseListener, ActionListener {
                 this.pointList.add(p);
             }
         }
-        
-        
-        
+
+        phaseShipSelect();
 
     }   
     
@@ -118,32 +107,14 @@ public class Game implements MouseListener, ActionListener {
         this.gameOver = true;
         this.winner = "-";
         this.messageCount = 0;
-        this.currentBoard = null;
+        
         this.computerBoard = null;
         this.humanBoard = null;
         this.highscore = null;
         this.gametime.stopTime();
         this.pointList.clear();
         removeComputerBoardClickListeners();
-        addContinueListener();
     
-    }
-    
-    /**
-     * Removes a click listener for the continue button.
-     */
-    private void removeContinueListener() {
-        gui.getContinue().removeActionListener(this);
-        
-    }
-    
-    
-    /**
-     * Adds a click listener for the continue button.
-     */
-    private void addContinueListener() {
-        gui.getContinue().addActionListener(this);
-        
     }
     
       
@@ -162,7 +133,8 @@ public class Game implements MouseListener, ActionListener {
             }
         }
         
-        // back to the beginning
+        phaseGameOver();
+       
     }
     
     /**
@@ -177,6 +149,8 @@ public class Game implements MouseListener, ActionListener {
        if(winner.equals("Human")) {
            int seconds = this.gametime.getSeconds();
            checkNewHighScore(seconds);
+       } else {
+           phaseGameOver();
        }
     }
     
@@ -202,23 +176,23 @@ public class Game implements MouseListener, ActionListener {
 
                 int randomPosition = this.getRandomIntegerBetween(0, (this.pointList.size() -1));
                // gui.swapBoardOrder();        
-                this.currentBoard = this.humanBoard;
+                //this.currentBoard = this.humanBoard;
                 int x = this.pointList.get(randomPosition).x;
                 int y = this.pointList.get(randomPosition).y;
-                int type = this.currentBoard.bomb(x, y);
+                int type = this.humanBoard.bomb(x, y);
                 handleBombResult(type);
                 gui.markComputerHit(x, y, type);
                 this.pointList.remove(randomPosition);
                 System.out.println("human: " + this.pointList.size());
                 this.humanBoard.printBoard();
-                gui.showContinue();
+                
 
             } else {
                 System.out.println("turn galse:");
                 System.out.println("computer:");
                 this.computerBoard.printBoard();
-                this.currentBoard = this.computerBoard;
-                gui.swapBoardOrder(); 
+        
+                //gui.swapBoardOrder(); 
 
             }
         }
@@ -226,23 +200,15 @@ public class Game implements MouseListener, ActionListener {
     }
     
     private void makeNewShipLayout() {
-        this.currentBoard.clearBoard();
+        this.humanBoard.clearBoard();
         this.gui.clearBoard();
-        this.currentBoard.addAllShipsAtRandom();
-        this.currentBoard.printBoard();
-        this.gui.drawHumanBoard(this.currentBoard);
-    }
-    
-    /**
-     * Bombing on boards may continue.
-     */
-    private void continueGame() {
-        gui.swapBoardOrder();
-        gui.hideContinue();
-        gui.clearMessages();
+        this.humanBoard.addAllShipsAtRandom();
+        this.humanBoard.printBoard();
+        this.gui.drawHumanBoard(this.humanBoard);
         
     }
     
+
     /**
      * Removes click listeners on computers' board.
      */
@@ -272,7 +238,8 @@ public class Game implements MouseListener, ActionListener {
      * @param e is the mouse event. Click in this context.
      */
     private void bomb(int x, int y, MouseEvent e) {
-        Board b = this.currentBoard;
+        System.out.println("bom");
+        Board b = this.computerBoard;
         handleBombResult(b.bomb(x, y));
         
         gui.markHitOrMiss(x, y, b, e.getComponent());
@@ -307,7 +274,7 @@ public class Game implements MouseListener, ActionListener {
                 this.currentBoard.addAllShipsAtRandom();
                 this.currentBoard.printBoard();
                 this.gui.drawHumanBoard(this.currentBoard);*/
-                gui.swapBoardOrder();
+                //gui.swapBoardOrder();
             } else {
                 stop = true;
             }
@@ -356,6 +323,13 @@ public class Game implements MouseListener, ActionListener {
         
         String message = "";
         String player;
+        this.messageCount +=1;
+        if(this.messageCount % 2 != 0) {
+            this.gui.clearMessages();
+        } else {
+            
+        }
+        
         if(this.turn) {
            player = "Computer";
         } else {
@@ -364,42 +338,52 @@ public class Game implements MouseListener, ActionListener {
         }
         switch (type) {
            case -1:
-                //Miss
                 this.turn = !this.turn;
                 System.out.println(" miss.");
                 message = " miss";
-                checkGameOver();
+                this.gui.publishMessage(this.messageCount +": "+ player + message);
                 break;
            case 0:
                 //Already used
                 this.turn = this.turn;
                 System.out.println(" already used block.");
                 message = " already used. Try again.";
+                this.gui.publishMessage(this.messageCount +": "+ player + message);
                 break;
            case 1:
                 //Ship hit
-               this.turn = !this.turn;
+                this.turn = !this.turn;
                 System.out.println(" hit.");
                 message = " hit.";
-                checkGameOver();
+                this.gui.publishMessage(this.messageCount +": "+ player + message);
                 break;
            case 2:
                //Sinked
                 this.turn = !this.turn;
                 System.out.println(" sinked it!");
-                checkGameOver();
                 message = " sinked it!";
+                this.gui.publishMessage(this.messageCount +": "+ player + message); 
                 break;
            default:
                this.turn = !this.turn;
                System.out.println(" miss.");
                message = " miss.";
-               checkGameOver();
-               
+               this.gui.publishMessage(this.messageCount +": "+ player + message);
         }
-        this.messageCount +=1;
-        gui.publishMessage(this.messageCount +": "+ player + message);
+        
+        if(this.messageCount % 2 == 0) {
+            this.gui.publishMessage(getShipsLeft());
+        } else {
+            
+        }
+        
+        checkGameOver();
+
+    }
     
+    private String getShipsLeft() {
+        String shipsLeft = "\n\nShips left:\n\nHuman\t\tComputer\n" + this.humanBoard.getShipCount() + "\t\t" + this.computerBoard.getShipCount();
+        return shipsLeft;
     }
     
     
@@ -429,6 +413,40 @@ public class Game implements MouseListener, ActionListener {
 
     @Override
     public void mouseExited(MouseEvent e) {}
+    
+    private void phaseBeginBombing() {
+        this.gui.clearMessages();
+        addComputerBoardClickListener();
+        this.gui.publishMessage("It's your turn. Start bombing by selecting a square of choice from the bottom board.");
+        this.gui.setCursorCrosshair();
+        this.gui.getButtons()[0].setVisible(false);
+        this.gui.getButtons()[1].setVisible(false);
+    }
+    private void phaseInitial() {
+        this.gui.getButtons()[0].setVisible(true);
+        this.gui.getButtons()[1].setVisible(false);
+        this.gui.getButtons()[2].setVisible(true);
+        this.gui.getButtons()[0].setText("New Game");
+        this.gui.getButtons()[1].setText("Instructions");
+        this.gui.getButtons()[2].setText("Close Program");
+        
+    }
+    private void phaseShipSelect() {
+        this.gui.clearMessages();
+         this.gui.getButtons()[1].setVisible(true);
+        this.gui.publishMessage("Your ships are on the top right board.\nAre you happy with the ships like that?");
+        this.gui.getButtons()[0].setText("Yes");
+        this.gui.getButtons()[1].setText("No");
+        this.gui.getButtons()[2].setText("Quit Game");
+       // this.ACTION_VIEW.setVisible(true);
+    }
+    private void phaseGameOver() {
+        this.gui.clearMessages();
+        this.gui.clearViews();
+        endGame();
+        displayHighScores();
+        phaseInitial();
+    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -436,7 +454,7 @@ public class Game implements MouseListener, ActionListener {
             case "New Game":
                System.out.println("new");
                startNewGame();
-               this.gui.phaseShipSelect();
+               
                break;
             case "Instructions":
                System.out.println("inst");
@@ -444,22 +462,18 @@ public class Game implements MouseListener, ActionListener {
             case "Close Program":
                System.exit(0);
                break;
-            case "Continue":
-               continueGame();
-               break;
             case "No":
                makeNewShipLayout();
                break;
             case "Yes":
                 System.out.println("yes");
+                phaseBeginBombing();
                 // start game etc, clear texts
-               this.gui.swapBoardOrder();
+               //this.gui.swapBoardOrder();
                break;
             case "Quit Game":
                System.out.println("quit");
-               endGame();
-               this.displayHighScores();
-               this.gui.phaseInitial();
+               phaseGameOver();
                break;
         }
         

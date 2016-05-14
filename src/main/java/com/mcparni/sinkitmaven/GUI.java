@@ -4,12 +4,15 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
+import static java.awt.Component.TOP_ALIGNMENT;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.LayoutManager;
 import java.util.ArrayList;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -62,7 +65,6 @@ public class GUI {
     private GridBagConstraints constraints;
 
     private JTextArea statusText;
-    private JButton continueButton;
     
     private int amountOfButtons;
     
@@ -73,6 +75,8 @@ public class GUI {
     private JButton gameButton3;
     
     private JButton approveShips;
+    
+    private Component spaceBetweenBoards;
     
     
     
@@ -101,14 +105,14 @@ public class GUI {
         // white
         this.COLOR_BASE = new Color(255, 255, 255);
         
-        this.WINDOW_SIZE = new Dimension(1024,576);
+        this.WINDOW_SIZE = new Dimension(699,650);
         
-        this.ACTION_VIEW_SIZE = new Dimension(650, 550);
+        this.ACTION_VIEW_SIZE = new Dimension(325, 650);
         
         
-        this.CONTROL_VIEW_SIZE = new Dimension(374,550);
+        this.CONTROL_VIEW_SIZE = new Dimension(374,650);
         
-        this.SQUARE = 50;
+        this.SQUARE = 25;
         
         this.MAIN_FRAME = new JFrame("Sink-it");
         this.MAIN_FRAME.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -118,23 +122,29 @@ public class GUI {
         
         this.CONTROL_VIEW = new JPanel();
         this.CONTROL_VIEW.setLayout(new BoxLayout(this.CONTROL_VIEW, BoxLayout.Y_AXIS));
+        
         this.CONTROL_VIEW.setSize(this.CONTROL_VIEW_SIZE);
         this.STAGE.add(this.CONTROL_VIEW,BorderLayout.CENTER);
         
-        this.ACTION_VIEW = new JPanel(new CardLayout());
+        this.ACTION_VIEW = new JPanel();
+        this.ACTION_VIEW.setLayout(new BoxLayout(this.ACTION_VIEW, BoxLayout.Y_AXIS));
         this.ACTION_VIEW.setSize(this.ACTION_VIEW_SIZE);
+        this.ACTION_VIEW.setAlignmentY(0);
         this.ACTION_VIEW.setPreferredSize(this.ACTION_VIEW_SIZE);
         //this.ACTION_VIEW.setBackground(new Color(198, 241, 255));
         this.STAGE.add(this.ACTION_VIEW, BorderLayout.LINE_END);
               
         this.statusText = new JTextArea(5, 20);
         this.statusText.setPreferredSize(new Dimension(360,400));
+        this.statusText.setLineWrap(true);
+        this.statusText.setWrapStyleWord(true);
         
         JScrollPane scrollPane = new JScrollPane(statusText); 
         this.statusText.setBackground(COLOR_BASE);
         this.statusText.setOpaque(true);
         this.statusText.setEditable(false);
         this.CONTROL_VIEW.add(statusText);
+        
         
         this.buttons = new JButton[this.amountOfButtons];
         
@@ -157,8 +167,7 @@ public class GUI {
         this.buttons[1] = this.gameButton2;
         this.buttons[2] = this.gameButton3;
         
-        phaseInitial();
-        
+        this.spaceBetweenBoards = Box.createRigidArea(new Dimension(0,40));
         
         gameButton3.setAlignmentX(Component.CENTER_ALIGNMENT);
         this.CONTROL_VIEW.add(gameButton3);
@@ -172,7 +181,11 @@ public class GUI {
     }
     
     public void clearViews() {
-    
+        this.ACTION_VIEW.removeAll();
+        this.ACTION_VIEW.revalidate();
+        this.ACTION_VIEW.repaint();
+        this.computerBoard.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        
     }
     
     public void makeStartView() {
@@ -184,7 +197,7 @@ public class GUI {
         this.computerBoard.setLayout(new GridBagLayout());
         
         this.humanBoard = new JPanel();
-        
+        this.humanBoard.setLayout(new GridBagLayout());
         
         this.constraints = new GridBagConstraints();
     
@@ -193,30 +206,13 @@ public class GUI {
         //this.statusText.setSize(250, 300);
         
         
-        this.continueButton = new JButton("Continue");
-        this.continueButton.setName("continueButton");
-        
-        
-        continueButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        this.CONTROL_VIEW.add(continueButton);
         
         
     }
     
-    public void phaseInitial() {
-        buttons[0].setText("New Game");
-        buttons[1].setText("Instructions");
-        buttons[2].setText("Close Program");
-        this.ACTION_VIEW.setVisible(false);
-    }
-    
-    public void phaseShipSelect() {
-        this.clearMessages();
-        this.publishMessage("Are you happy with the current ship layout?");
-        buttons[0].setText("Yes");
-        buttons[1].setText("No");
-        buttons[2].setText("Quit Game");
-        this.ACTION_VIEW.setVisible(true);
+   
+    public void setCursorCrosshair() {
+        this.computerBoard.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
     }
     
     /**
@@ -259,21 +255,28 @@ public class GUI {
         this.constraints.weightx = 0;
 
         JLabel square = new JLabel("");
-        square.setOpaque(true);
+        square.setOpaque(false);
         square.setSize(d);
         Color color;
+        
+        ImageIcon icon = null;
+        
         if(type == -1) {
-            color = this.COLOR_MISS;
+            //color = this.COLOR_MISS;
+            icon = createImageIcon("miss.png");
         } else {
-            color = this.COLOR_HIT;
+            icon = createImageIcon("hit.png");
+            //color = this.COLOR_HIT;
         }
-        square.setBackground(color);
 
         square.setMinimumSize(d);
         square.setPreferredSize(d);
         square.setBorder(BorderFactory.createLineBorder(this.COLOR_BORDER));
         this.constraints.gridx = (x + 1);
         this.constraints.gridy = (y + 1);
+        
+        square.setIcon(icon);
+
 
         this.humanBoard.add(square, this.constraints, 0); 
 
@@ -298,20 +301,8 @@ public class GUI {
         System.out.printf("The user's name is '%s'.\n", name);
         return name;
     }
-    
-    /**
-     * Hides continue button from the view.
-     */
-    public void hideContinue() {
-        this.continueButton.setVisible(false);
-    }
-    
-    /**
-     * shows the continue button in the view.
-     */
-    public void showContinue() {
-        this.continueButton.setVisible(true);
-    }
+
+ 
     
     /**
      * @return game UI buttons as an array.
@@ -321,13 +312,7 @@ public class GUI {
      
     }
     
-    /**
-     * returns the continue button.
-     * @return continue button as a JButton.
-     */
-    public JButton getContinue() {
-        return this.continueButton;
-    }
+
     
     /**
      * Presents visually humans' bomb result.
@@ -368,30 +353,24 @@ public class GUI {
     }
     
     /**
-     * clears the ACTION_VIEW of both boards.
+     * clears the human board.
      */
     public void clearBoard() {
         System.out.println("Clearing");
-            boolean empty = false;
-           // this.humanBoard.removeAll();
-           // this.humanBoard.revalidate();
-           // this.humanBoard.repaint();
-           this.ACTION_VIEW.removeAll();
-           this.ACTION_VIEW.revalidate();
-           this.ACTION_VIEW.repaint();
-           
-            
+            this.humanBoard.removeAll();
+            this.humanBoard.revalidate();
+            this.humanBoard.repaint();
+            this.ACTION_VIEW.remove(this.spaceBetweenBoards);   
     }
     
     /**
-     * Solves a color to return by given character.
+     * Resolves a color to return by given character.
      * @param character is string character to get the color by.
      * @return color by character.
      */
     private Color resolveColor(String character) {
         
         Color color;
-
         //String[]characters = {"a","b","c","d","e","f","g","h","i","j","k","l"};
         switch (character) {
             case "o":
@@ -426,20 +405,10 @@ public class GUI {
      * @param board to draw. 
      */
     public void drawHumanBoard(Board board) {
-        Dimension d = new Dimension(this.SQUARE, this.SQUARE);
-        
-        /*JPanel humanBoardBase = new JPanel();
-        humanBoardBase.setLayout(new CardLayout());
-        humanBoardBase.setSize(this.ACTION_VIEW_SIZE);*/
-        
-        JPanel _humanBoard = new JPanel();
-        _humanBoard.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        
+        Dimension d = new Dimension(this.SQUARE, this.SQUARE);    
+        GridBagConstraints c = new GridBagConstraints();     
         c.fill = GridBagConstraints.NONE;
-        //c.weightx = 0;
-        
-        
+
         for(int i = 1; i < (board.getColumns() +1); i++) {
             for(int j = 1; j < (board.getRows() +1); j++) {
                 JLabel square = new JLabel("");
@@ -456,7 +425,7 @@ public class GUI {
                 c.gridx = i;
                 c.gridy = j;
                
-                _humanBoard.add(square, c, 0); 
+                this.humanBoard.add(square, c, 0); 
                 
                 
             }
@@ -465,45 +434,12 @@ public class GUI {
         c.gridx = 1;
         c.gridy = 1;
         
-        /*for(int i = 0; i < board.getShips().size(); i++) {
-            
-             JLabel shipGfx;
-             
-             if(i == 0) {
-                ImageIcon icon = createImageIcon("gfx/square8.png");
-
-                shipGfx  = new JLabel(icon);
-             } else {
-                 shipGfx = new JLabel("");
-             }
-             
-             Dimension shipSize = new Dimension(board.getShips().get(i).getColumns(), board.getShips().get(i).getRows());
-             shipGfx.setOpaque(true);
-             shipGfx.setSize(shipSize);
-             
-             shipGfx.setMinimumSize(shipSize);
-             shipGfx.setPreferredSize(shipSize);
-             
-             shipGfx.setBackground(COLOR_HIT);
-             c.gridx = board.getShips().get(i).getX();
-             c.gridy = board.getShips().get(i).getY();
-             
-             System.out.println("te: " + shipSize + " x: " + c.gridx + " y: " + c.gridy );
-             
-             _humanBoard.add(shipGfx, c);
-        }
         
-        c.gridx = 1;
-        c.gridy = 1;*/
+        this.ACTION_VIEW.add(this.humanBoard, 0);
         
-
-        
-        this.ACTION_VIEW.add(_humanBoard, 0);
-        
-        _humanBoard.revalidate();
-        _humanBoard.repaint();
-        this.humanBoard = _humanBoard;
-        
+        this.humanBoard.revalidate();
+        this.humanBoard.repaint();
+        this.ACTION_VIEW.add(this.spaceBetweenBoards);
         
        
     }
@@ -561,21 +497,7 @@ public class GUI {
         }
         
         this.ACTION_VIEW.add(this.computerBoard, 0);
-       
-    }
-    
-    /**
-     * Handles the visibility of the boards.
-     * 
-     */
-    public void swapBoardOrder() {
-        //this.ACTION_VIEW.remove
-        CardLayout cl = (CardLayout)(this.ACTION_VIEW.getLayout());
-        cl.next(this.ACTION_VIEW);
-        System.out.println("c: " + this.ACTION_VIEW.getComponentCount());
-        /*JPanel temp = (JPanel) this.ACTION_VIEW.getComponent(0);
-        JPanel temp2 = (JPanel) this.ACTION_VIEW.getComponent(1);*/
-        
+ 
     }
     
     /**

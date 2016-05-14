@@ -123,10 +123,6 @@ public class Ship {
         }
     }
 
-    private int getRandomIntegerBetween(int min, int max) {
-        return min + (int)(Math.random() * ((max - min) + 1));
-    }
-
     /**
      * Builds a ship of given type as a parameter.
      * @param type many squares of space ship takes
@@ -170,10 +166,6 @@ public class Ship {
         this.character = character;
        
         String[][] _ship = new String[this.cols][this.rows];
-
-
-        // to be implemented
-        int rotateState = getRandomIntegerBetween(0, 1);
 
        
         for(int i = 0; i < this.cols; i++) {
