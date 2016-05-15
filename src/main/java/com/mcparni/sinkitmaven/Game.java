@@ -20,7 +20,6 @@ public class Game implements MouseListener, ActionListener {
     private int messageCount;
     private boolean turn;
     private boolean gameOver;
-    private String winner;
     private ArrayList<Point> pointList;
       
     private GameTime gametime;
@@ -36,9 +35,9 @@ public class Game implements MouseListener, ActionListener {
     */
     public Game() {
         this.gui = new GUI();
-        addButtonListeners();
-        displayHighScores();
         phaseInitial();
+        displayHighScores();
+        addButtonListeners();
         //startNewGame();
     }
     
@@ -76,15 +75,11 @@ public class Game implements MouseListener, ActionListener {
     private void startNewGame() {
         this.turn = false;
         this.gameOver = false;
-        this.winner = "-";
         this.messageCount = 0;
                 
         this.computerBoard = new Board();
         this.humanBoard = new Board();
 
-        this.gametime = new GameTime();
-        this.gametime.startTime();
-        
         this.humanBoard.addAllShipsAtRandom();
         this.computerBoard.addAllShipsAtRandom(); 
         
@@ -102,6 +97,8 @@ public class Game implements MouseListener, ActionListener {
                 this.pointList.add(p);
             }
         }
+        
+
 
         phaseShipSelect();
 
@@ -113,13 +110,13 @@ public class Game implements MouseListener, ActionListener {
     private void endGame() {
         this.turn = true;
         this.gameOver = true;
-        this.winner = "-";
         this.messageCount = 0;
         
         this.computerBoard = null;
         this.humanBoard = null;
         this.highscore = null;
         this.gametime.stopTime();
+        this.gametime = null;
         this.pointList.clear();
         removeComputerBoardClickListeners();
     
@@ -156,6 +153,8 @@ public class Game implements MouseListener, ActionListener {
      * The game has started and players are now able to bomb each others.
      */
     private void phaseBeginBombing() {
+        this.gametime = new GameTime();
+        this.gametime.startTime();
         this.gui.clearMessages();
         addComputerBoardClickListener();
         this.gui.publishMessage("It's your turn. Start bombing by selecting a square of choice from the bottom board.");
@@ -174,6 +173,16 @@ public class Game implements MouseListener, ActionListener {
         displayHighScores();
         phaseInitial();
     }
+    
+    /**
+     * Shows a message when human has lost or the gametime was 
+     * too high for the top list.
+     * @param message is the message to be published for the lost player.
+     */
+    private void showMessageBeforeQuit(String message) {
+        this.gui.clearBoard();
+        this.gui.publishMessage(message);
+    }
       
     /**
      * Checks if the current score is enough for the top list
@@ -188,9 +197,11 @@ public class Game implements MouseListener, ActionListener {
             } catch (Exception e) {
                 System.out.println("Exception: " + e);
             }
+            phaseGameOver();
+        } else {
+            showMessageBeforeQuit("Good job, but your time was not good enough for the list.");
         }
         
-        phaseGameOver();
        
     }
     
@@ -207,7 +218,7 @@ public class Game implements MouseListener, ActionListener {
            int seconds = this.gametime.getSeconds();
            checkNewHighScore(seconds);
        } else {
-           phaseGameOver();
+           showMessageBeforeQuit("This time you lost, but maybe you win next time?");
        }
     }
     
@@ -220,13 +231,11 @@ public class Game implements MouseListener, ActionListener {
         
         if(this.humanBoard.getShipCount() == 0) {
             this.gameOver = true;
-            this.winner = "Computer";
-            presentWinner(this.winner);
+            presentWinner("Computer");
             
         } else if (this.computerBoard.getShipCount() == 0) {
             this.gameOver = true;
-            this.winner = "Human";
-            presentWinner(this.winner);
+            presentWinner("Human");
             
         } else {
             if(this.turn) {
@@ -239,8 +248,6 @@ public class Game implements MouseListener, ActionListener {
                 gui.markComputerHit(x, y, type);
                 this.pointList.remove(randomPosition);
                 //this.humanBoard.printBoard();
-                
-
             } else {
                 //this.computerBoard.printBoard();
             }
@@ -338,6 +345,7 @@ public class Game implements MouseListener, ActionListener {
            case 0:
                 //Already used
                 this.turn = this.turn;
+                this.messageCount -=1;
                 message = " already used. Try again.";
                 this.gui.publishMessage(this.messageCount +": "+ player + message);
                 break;

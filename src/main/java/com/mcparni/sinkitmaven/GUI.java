@@ -478,7 +478,7 @@ public class GUI {
      * Returns a visual presentation of humans' board.
      * @return humanBoard as a JPanel.
      */
-    public JPanel humanBoard() {
+    public JPanel getHumanBoard() {
         return this.humanBoard;
     }
     
